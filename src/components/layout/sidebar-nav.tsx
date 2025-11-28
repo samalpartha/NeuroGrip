@@ -68,16 +68,17 @@ export function SidebarNav() {
         <SidebarMenu>
           {menuItems.map((item) => (
             <SidebarMenuItem key={item.label}>
-              <Link href={item.href} legacyBehavior passHref>
-                <SidebarMenuButton
-                  isActive={pathname === item.href}
-                  tooltip={{ children: item.label }}
-                >
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === item.href}
+                tooltip={{ children: item.label }}
+              >
+                <Link href={item.href}>
                   <item.icon />
                   <span>{item.label}</span>
                   {item.badge && <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>}
-                </SidebarMenuButton>
-              </Link>
+                </Link>
+              </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
@@ -91,8 +92,8 @@ export function SidebarNav() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <Link href="/settings" legacyBehavior passHref>
-              <SidebarMenuButton size="lg" tooltip={{ children: "Alex Johnson" }}>
+            <SidebarMenuButton asChild size="lg" tooltip={{ children: "Alex Johnson" }}>
+              <Link href="/settings">
                 <Avatar className="size-8">
                   {userAvatar && <AvatarImage src={userAvatar.imageUrl} alt="User Avatar" />}
                   <AvatarFallback>AJ</AvatarFallback>
@@ -103,8 +104,8 @@ export function SidebarNav() {
                     alex.j@example.com
                   </span>
                 </div>
-              </SidebarMenuButton>
-            </Link>
+              </Link>
+            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
