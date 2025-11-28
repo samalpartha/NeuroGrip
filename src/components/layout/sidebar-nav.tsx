@@ -24,6 +24,7 @@ import {
   Users,
   Settings,
   LogOut,
+  Info,
 } from "lucide-react"
 import { PlaceHolderImages } from "@/lib/placeholder-images"
 
@@ -45,6 +46,11 @@ const menuItems = [
     icon: Users,
     label: "Patients",
     badge: "3",
+  },
+   {
+    href: "/about",
+    icon: Info,
+    label: "About",
   },
   {
     href: "/settings",
@@ -86,9 +92,11 @@ export function SidebarNav() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton tooltip={{ children: "Logout" }}>
-              <LogOut />
-              <span>Logout</span>
+            <SidebarMenuButton asChild tooltip={{ children: "Logout" }}>
+              <Link href="/login">
+                <LogOut />
+                <span>Logout</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
