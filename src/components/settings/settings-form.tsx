@@ -101,7 +101,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
               )}
             />
           </CardContent>
-          <Separator className="my-4" />
+          <Separator/>
           <CardHeader>
             <CardTitle>Preferences</CardTitle>
             <CardDescription>Customize your app experience.</CardDescription>
@@ -141,8 +141,8 @@ export function SettingsForm({ user }: SettingsFormProps) {
           <CardFooter>
             <Button type="submit">Save Preferences</Button>
           </CardFooter>
-        </form>
-      </Form>
-    </Card>
+        </Card>
+      </form>
+    </Form>
   );
 }

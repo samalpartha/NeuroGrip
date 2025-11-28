@@ -17,20 +17,25 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import type { Patient } from "@/lib/types";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, PlusCircle } from "lucide-react";
+import { AddPatientForm } from "./add-patient-form";
 
 interface PatientListProps {
   patients: Patient[];
+  onAddPatient: (patient: Patient) => void;
 }
 
-export function PatientList({ patients }: PatientListProps) {
+export function PatientList({ patients, onAddPatient }: PatientListProps) {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>All Patients</CardTitle>
-        <CardDescription>
-          A list of all patients currently undergoing therapy.
-        </CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+            <CardTitle>All Patients</CardTitle>
+            <CardDescription>
+            A list of all patients currently undergoing therapy.
+            </CardDescription>
+        </div>
+        <AddPatientForm onAddPatient={onAddPatient} />
       </CardHeader>
       <CardContent>
         <Table>
