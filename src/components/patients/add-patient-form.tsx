@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { useState } from 'react';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import {
   Dialog,
   DialogContent,
@@ -13,7 +13,7 @@ import {
   DialogTrigger,
   DialogFooter,
   DialogClose,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
@@ -21,18 +21,18 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { PlusCircle } from "lucide-react";
-import { useFirestore, useUser, addDocumentNonBlocking } from "@/firebase";
-import { collection } from "firebase/firestore";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { PlusCircle } from 'lucide-react';
+import { useFirestore, useUser, addDocumentNonBlocking } from '@/firebase';
+import { collection } from 'firebase/firestore';
 
 const formSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters."),
-  age: z.coerce.number().min(1, "Age must be a positive number."),
-  condition: z.string().min(3, "Condition must be at least 3 characters."),
+  name: z.string().min(2, 'Name must be at least 2 characters.'),
+  age: z.coerce.number().min(1, 'Age must be a positive number.'),
+  condition: z.string().min(3, 'Condition must be at least 3 characters.'),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -46,23 +46,23 @@ export function AddPatientForm() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      name: '',
       age: 0,
-      condition: "",
+      condition: '',
     },
   });
 
-  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+  const onSubmit: SubmitHandler<FormValues> = (data) => {
     if (!user) {
       toast({
-        variant: "destructive",
-        title: "Authentication Error",
-        description: "You must be logged in to add a patient.",
+        variant: 'destructive',
+        title: 'Authentication Error',
+        description: 'You must be logged in to add a patient.',
       });
       return;
     }
     
-    const patientsCollectionRef = collection(firestore, "patients");
+    const patientsCollectionRef = collection(firestore, 'patients');
     
     addDocumentNonBlocking(patientsCollectionRef, {
       ...data,
@@ -70,7 +70,7 @@ export function AddPatientForm() {
       avatarUrl: `https://picsum.photos/seed/${data.name.split(' ')[0]}/100/100`,
       avatarHint: 'person',
       lastSession: new Date().toISOString(),
-      therapistNotes: "Newly added patient.",
+      therapistNotes: 'Newly added patient.',
       totalHours: 0,
       avgGripStrength: 0,
       goalsCompleted: 0,
@@ -80,7 +80,7 @@ export function AddPatientForm() {
     });
 
     toast({
-      title: "Patient Added",
+      title: 'Patient Added',
       description: `${data.name} has been successfully added to the patient list.`,
     });
     setOpen(false);

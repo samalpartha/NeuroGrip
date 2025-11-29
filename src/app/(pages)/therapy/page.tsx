@@ -1,14 +1,12 @@
+'use client';
 
-"use client";
-
-import { AdaptiveAssistClient } from "@/components/therapy/adaptive-assist-client";
-import { GamifiedExercise } from "@/components/therapy/gamified-exercise";
-import { HeartPulse } from "lucide-react";
-import withAuth from "@/components/auth/withAuth";
+import { AdaptiveAssistClient } from '@/components/therapy/adaptive-assist-client';
+import { GamifiedExercise } from '@/components/therapy/gamified-exercise';
+import { HeartPulse } from 'lucide-react';
 
 function TherapyPage() {
   // Dummy data, this could be fetched based on selected patient or program
-  const patientCondition = "Post-stroke recovery";
+  const patientCondition = 'Post-stroke recovery';
   const targetStrength = 30;
 
   return (
@@ -32,4 +30,4 @@ function TherapyPage() {
   );
 }
 
-export default withAuth(TherapyPage);
+export default TherapyPage;

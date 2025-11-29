@@ -1,11 +1,9 @@
-
-"use client";
+'use client';
 
 import { MainLayout } from '@/components/layout/main-layout';
 import { StatsCards } from '@/components/dashboard/stats-cards';
 import { TherapyProgress } from '@/components/dashboard/therapy-progress';
 import { WelcomeHeader } from '@/components/dashboard/welcome-header';
-import withAuth from '@/components/auth/withAuth';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 import type { Patient } from '@/lib/types';
@@ -67,4 +65,4 @@ function Home() {
   );
 }
 
-export default withAuth(Home);
+export default Home;
