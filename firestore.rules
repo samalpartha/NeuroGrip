@@ -1,4 +1,5 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -7,17 +8,18 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Helper function to check if the requesting user is a therapist by
-    // looking at their corresponding document in the /users collection.
+    // Helper function to check if the user has the 'therapist' role
     function isTherapist() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isTherapist == true;
+      // Use exists() which is more efficient and counts as one read
+      return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isTherapist == true;
     }
 
     // Rules for the 'users' collection
     match /users/{userId} {
-      // Any signed-in user can create their own user document.
+      // A user can create their own document, but not someone else's.
       allow create: if isSignedIn() && request.auth.uid == userId;
-      // Users can only read, update, or delete their own document.
+
+      // A user can only read, update, or delete their own document.
       allow read, update, delete: if isSignedIn() && request.auth.uid == userId;
     }
 
@@ -28,7 +30,7 @@ service cloud.firestore {
       
       // A therapist can list patients ONLY if the query filters by their own therapistId.
       // This is the crucial rule that allows the main queries to work.
-      allow list: if isTherapist() && request.query.where['therapistId'] == request.auth.uid;
+      allow list: if isTherapist() && request.query.where.therapistId == request.auth.uid;
       
       // A therapist can create a patient document if they are assigning it to themselves.
       allow create: if isTherapist() && request.resource.data.therapistId == request.auth.uid;
