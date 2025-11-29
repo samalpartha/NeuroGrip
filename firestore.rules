@@ -77,7 +77,7 @@ service cloud.firestore {
       // RULE FOR LISTING/QUERYING:
       // A user can list patients if and only if the query filters by their own therapistId.
       // This is the most secure and reliable pattern.
-      allow list: if request.auth != null && request.query.where.get("therapistId")[2] == request.auth.uid;
+      allow list: if request.auth != null && isTherapist(request.auth.uid) && request.query.where.therapistId == request.auth.uid;
 
       // RULE FOR GETTING A SINGLE DOCUMENT:
       // A user can get a single patient document if they are a therapist and are assigned to that patient.
