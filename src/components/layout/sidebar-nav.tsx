@@ -19,7 +19,6 @@ import {
 import {
   BrainCircuit,
   LayoutDashboard,
-  HeartPulse,
   Users,
   Settings,
   LogOut,
@@ -36,19 +35,9 @@ const menuItems = [
     label: "Dashboard",
   },
   {
-    href: "/therapy",
-    icon: HeartPulse,
-    label: "Therapy",
-  },
-  {
     href: "/patients",
     icon: Users,
     label: "Patients",
-  },
-   {
-    href: "/about",
-    icon: Info,
-    label: "About",
   },
   {
     href: "/settings",
