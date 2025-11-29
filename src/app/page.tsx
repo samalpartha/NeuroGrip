@@ -6,7 +6,7 @@ import { StatsCards } from '@/components/dashboard/stats-cards';
 import { TherapyProgress } from '@/components/dashboard/therapy-progress';
 import { WelcomeHeader } from '@/components/dashboard/welcome-header';
 import withAuth from '@/components/auth/withAuth';
-import { useUser, useFirestore, useCollection } from '@/firebase';
+import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 import type { Patient } from '@/lib/types';
 import { useMemo } from 'react';
@@ -15,7 +15,7 @@ function Home() {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  const patientsQuery = useMemo(() => {
+  const patientsQuery = useMemoFirebase(() => {
     if (!user) return null;
     return query(collection(firestore, 'patients'), where('therapistId', '==', user.uid));
   }, [firestore, user]);

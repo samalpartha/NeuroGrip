@@ -1,40 +1,24 @@
+
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { PatientList } from "@/components/patients/patient-list";
 import type { Patient } from "@/lib/types";
 import { Users } from "lucide-react";
-import { useFirestore, useUser } from "@/firebase";
-import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { useFirestore, useUser, useCollection, useMemoFirebase } from "@/firebase";
+import { collection, query, where } from "firebase/firestore";
 import withAuth from "@/components/auth/withAuth";
 
 function PatientsPage() {
-  const [patients, setPatients] = useState<Patient[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const firestore = useFirestore();
   const { user } = useUser();
 
-  useEffect(() => {
-    if (!user) return;
-
-    setIsLoading(true);
-    const patientsCollectionRef = collection(firestore, "patients");
-    const q = query(patientsCollectionRef, where("therapistId", "==", user.uid));
-    
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const patientsData: Patient[] = [];
-      querySnapshot.forEach((doc) => {
-        patientsData.push({ id: doc.id, ...doc.data() } as Patient);
-      });
-      setPatients(patientsData);
-      setIsLoading(false);
-    }, (error) => {
-      console.error("Error fetching patients:", error);
-      setIsLoading(false);
-    });
-
-    return () => unsubscribe();
+  const patientsQuery = useMemoFirebase(() => {
+    if (!user) return null;
+    return query(collection(firestore, "patients"), where("therapistId", "==", user.uid));
   }, [firestore, user]);
+
+  const { data: patients, isLoading } = useCollection<Patient>(patientsQuery);
 
   return (
     <div className="flex flex-col gap-8">
@@ -45,7 +29,7 @@ function PatientsPage() {
       {isLoading ? (
         <p>Loading patients...</p>
       ) : (
-        <PatientList patients={patients} />
+        <PatientList patients={patients || []} />
       )}
     </div>
   );
