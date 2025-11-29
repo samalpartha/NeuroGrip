@@ -36,7 +36,7 @@ service cloud.firestore {
       allow create: if isTherapist() && request.resource.data.therapistId == request.auth.uid;
       
       // Allow update and delete if the user is the therapist assigned to the patient.
-      allow update, delete: if isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isTherapist == true && resource.data.therapistId == request.auth.uid;
+      allow update, delete: if isTherapist() && resource.data.therapistId == request.auth.uid;
     }
   }
 }
