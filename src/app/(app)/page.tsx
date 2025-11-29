@@ -7,6 +7,7 @@ import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebas
 import { collection, query, where } from 'firebase/firestore';
 import type { Patient } from '@/lib/types';
 import { useMemo } from 'react';
+import { Loader2 } from 'lucide-react';
 
 function DashboardPage() {
   const { user } = useUser();
@@ -44,7 +45,9 @@ function DashboardPage() {
     <div className="flex flex-col gap-8">
       <WelcomeHeader />
       {isLoading ? (
-        <p>Loading dashboard...</p>
+        <div className="flex items-center justify-center h-64">
+            <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
       ) : (
         <>
           <StatsCards 
