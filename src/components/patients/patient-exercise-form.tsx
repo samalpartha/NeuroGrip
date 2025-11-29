@@ -24,9 +24,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useFirestore, updateDocumentNonBlocking } from "@/firebase";
+import { doc } from "firebase/firestore";
 
 const formSchema = z.object({
-  targetStrength: z.number().min(0, "Must be a positive number."),
+  targetStrength: z.coerce.number().min(0, "Must be a positive number."),
   therapistNotes: z.string().min(10, "Notes must be at least 10 characters.").max(500, "Notes cannot exceed 500 characters."),
 });
 
@@ -38,6 +40,8 @@ interface PatientExerciseFormProps {
 
 export function PatientExerciseForm({ patient }: PatientExerciseFormProps) {
   const { toast } = useToast();
+  const firestore = useFirestore();
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -47,7 +51,11 @@ export function PatientExerciseForm({ patient }: PatientExerciseFormProps) {
   });
 
   const onSubmit: SubmitHandler<FormValues> = (data) => {
-    console.log("Updated patient data:", data);
+    if (!firestore || !patient.id) return;
+
+    const patientDocRef = doc(firestore, 'patients', patient.id);
+    updateDocumentNonBlocking(patientDocRef, data);
+    
     toast({
       title: "Patient Updated",
       description: `${patient.name}'s exercise plan has been successfully updated.`,
@@ -70,7 +78,7 @@ export function PatientExerciseForm({ patient }: PatientExerciseFormProps) {
                 <FormItem>
                   <FormLabel>Target Grip Strength (N)</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10))}/>
+                    <Input type="number" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
