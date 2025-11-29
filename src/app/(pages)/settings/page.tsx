@@ -1,9 +1,7 @@
+'use client';
 
-"use client";
-
-import { SettingsForm } from "@/components/settings/settings-form";
-import { Settings } from "lucide-react";
-import withAuth from "@/components/auth/withAuth";
+import { SettingsForm } from '@/components/settings/settings-form';
+import { Settings } from 'lucide-react';
 
 function SettingsPage() {
   return (
@@ -19,4 +17,4 @@ function SettingsPage() {
   );
 }
 
-export default withAuth(SettingsPage);
+export default SettingsPage;

@@ -1,13 +1,10 @@
+'use client';
 
-"use client";
-
-import { useState, useEffect, useMemo } from "react";
-import { PatientList } from "@/components/patients/patient-list";
-import type { Patient } from "@/lib/types";
-import { Users } from "lucide-react";
-import { useFirestore, useUser, useCollection, useMemoFirebase } from "@/firebase";
-import { collection, query, where } from "firebase/firestore";
-import withAuth from "@/components/auth/withAuth";
+import { PatientList } from '@/components/patients/patient-list';
+import type { Patient } from '@/lib/types';
+import { Users } from 'lucide-react';
+import { useFirestore, useUser, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, where } from 'firebase/firestore';
 
 function PatientsPage() {
   const firestore = useFirestore();
@@ -15,7 +12,7 @@ function PatientsPage() {
 
   const patientsQuery = useMemoFirebase(() => {
     if (!user) return null;
-    return query(collection(firestore, "patients"), where("therapistId", "==", user.uid));
+    return query(collection(firestore, 'patients'), where('therapistId', '==', user.uid));
   }, [firestore, user]);
 
   const { data: patients, isLoading } = useCollection<Patient>(patientsQuery);
@@ -35,4 +32,4 @@ function PatientsPage() {
   );
 }
 
-export default withAuth(PatientsPage);
+export default PatientsPage;

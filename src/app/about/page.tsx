@@ -1,11 +1,9 @@
-
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Info } from "lucide-react";
 import Image from "next/image";
 import { MainLayout } from "@/components/layout/main-layout";
-import withAuth from "@/components/auth/withAuth";
 
 function AboutPage() {
   return (
@@ -71,4 +69,4 @@ function AboutPage() {
   );
 }
 
-export default withAuth(AboutPage);
+export default AboutPage;
