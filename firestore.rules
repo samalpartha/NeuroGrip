@@ -4,8 +4,6 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // Helper function to check if a user is a therapist based on their user document.
-    // This can be used for rules on single document reads/writes ('get', 'create', 'update', 'delete').
-    // It CANNOT be used in 'list' rules.
     function isTherapist(userId) {
       return get(/databases/$(database)/documents/users/$(userId)).data.isTherapist == true;
     }
@@ -20,10 +18,9 @@ service cloud.firestore {
     // Rules for the 'patients' collection
     match /patients/{patientId} {
       // RULE FOR LISTING/QUERYING:
-      // An authenticated user can query the 'patients' collection IF AND ONLY IF
-      // their query includes a `where("therapistId", "==", request.auth.uid)` filter.
-      // This is the correct, secure way to handle list operations and avoids the previous error.
-      allow list: if request.auth != null && request.query.get("therapistId") == request.auth.uid;
+      // A user can list patients if and only if the query filters by their own therapistId.
+      // This is the most secure and reliable pattern.
+      allow list: if request.auth != null && request.query.where.get("therapistId")[2] == request.auth.uid;
 
       // RULE FOR GETTING A SINGLE DOCUMENT:
       // A user can get a single patient document if they are a therapist and are assigned to that patient.
