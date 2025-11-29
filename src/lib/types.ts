@@ -1,3 +1,5 @@
+import type { Timestamp } from 'firebase/firestore';
+
 export interface GripStrengthData {
   date: string;
   strength: number;
@@ -15,7 +17,7 @@ export interface Patient {
   condition: string;
   avatarUrl: string;
   avatarHint: string;
-  lastSession: string;
+  lastSession: Timestamp;
   therapistNotes: string;
   therapistId: string; // a patient must belong to a therapist
   totalHours: number;

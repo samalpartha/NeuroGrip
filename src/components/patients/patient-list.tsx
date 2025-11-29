@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import type { Patient } from "@/lib/types";
 import { ArrowRight } from "lucide-react";
 import { AddPatientForm } from "./add-patient-form";
+import { formatDistanceToNow } from 'date-fns';
 
 interface PatientListProps {
   patients: Patient[];
@@ -70,7 +71,7 @@ export function PatientList({ patients }: PatientListProps) {
                 </TableCell>
                 <TableCell className="hidden md:table-cell">{patient.condition}</TableCell>
                 <TableCell className="hidden sm:table-cell">
-                  {new Date(patient.lastSession).toLocaleDateString()}
+                   {patient.lastSession ? formatDistanceToNow(new Date(patient.lastSession.seconds * 1000), { addSuffix: true }) : 'Never'}
                 </TableCell>
                 <TableCell className="text-right">
                   <Button asChild variant="ghost" size="icon">

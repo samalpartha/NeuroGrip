@@ -25,10 +25,11 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { useUser, useFirestore, updateDocumentNonBlocking } from "@/firebase";
-import { doc } from "firebase/firestore";
-import { updateProfile } from "firebase/auth";
-import { useEffect } from "react";
+import { useUser, useFirestore } from "@/firebase";
+import { doc, updateDoc } from "firebase/firestore";
+import { updateProfile, type Auth } from "firebase/auth";
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -41,8 +42,9 @@ type FormValues = z.infer<typeof formSchema>;
 
 export function SettingsForm() {
   const { toast } = useToast();
-  const { user } = useUser();
+  const { user, auth } = useUser();
   const firestore = useFirestore();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -64,30 +66,65 @@ export function SettingsForm() {
       });
     }
   }, [user, form]);
+  
+  useEffect(() => {
+    const isDark = document.documentElement.classList.contains('dark');
+    form.setValue('darkMode', isDark);
 
-  const onSubmit: SubmitHandler<FormValues> = (data) => {
-    if (!user) return;
-    
-    // Update profile in Firebase Auth
-    updateProfile(user, { displayName: data.name });
-
-    // Update user document in Firestore
-    const userDocRef = doc(firestore, 'users', user.uid);
-    updateDocumentNonBlocking(userDocRef, { name: data.name });
-
-    if (data.darkMode) {
-        document.documentElement.classList.add('dark');
-    } else {
-        document.documentElement.classList.remove('dark');
-    }
-    toast({
-      title: "Settings Saved",
-      description: "Your preferences have been updated.",
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+          const isDarkNow = (mutation.target as HTMLElement).classList.contains('dark');
+          form.setValue('darkMode', isDarkNow);
+        }
+      });
     });
+
+    observer.observe(document.documentElement, { attributes: true });
+    return () => observer.disconnect();
+  }, [form]);
+
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    if (!user || !firestore || !auth) return;
+    setIsSubmitting(true);
+
+    try {
+      // Update profile in Firebase Auth
+      if (user.displayName !== data.name) {
+        await updateProfile(user, { displayName: data.name });
+      }
+
+      // Update user document in Firestore
+      const userDocRef = doc(firestore, 'users', user.uid);
+      await updateDoc(userDocRef, { name: data.name });
+
+      if (data.darkMode) {
+          document.documentElement.classList.add('dark');
+      } else {
+          document.documentElement.classList.remove('dark');
+      }
+      toast({
+        title: "Settings Saved",
+        description: "Your preferences have been updated.",
+      });
+    } catch(e) {
+      console.error(e);
+      toast({
+        variant: 'destructive',
+        title: "Error",
+        description: "Failed to save settings.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!user) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-full">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
   }
 
   return (
@@ -164,7 +201,10 @@ export function SettingsForm() {
             />
           </CardContent>
           <CardFooter>
-            <Button type="submit">Save Preferences</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Save Preferences
+            </Button>
           </CardFooter>
         </Card>
       </form>
