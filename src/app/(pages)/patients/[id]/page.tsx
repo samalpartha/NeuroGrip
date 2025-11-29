@@ -1,7 +1,8 @@
+
 "use client";
 
 import { PatientDetails } from "@/components/patients/patient-details";
-import { useDoc, useFirestore } from "@/firebase";
+import { useDoc, useFirestore, useMemoFirebase } from "@/firebase";
 import { doc } from "firebase/firestore";
 import { notFound } from "next/navigation";
 import { User } from "lucide-react";
@@ -25,7 +26,12 @@ export default async function PatientDetailPage({
 =======
 function PatientDetailPage({ params }: { params: { id: string } }) {
   const firestore = useFirestore();
-  const patientDocRef = doc(firestore, "patients", params.id);
+  
+  const patientDocRef = useMemoFirebase(() => {
+    if (!firestore || !params.id) return null;
+    return doc(firestore, "patients", params.id);
+  }, [firestore, params.id]);
+
   const { data: patient, isLoading } = useDoc<Patient>(patientDocRef);
 
   if (isLoading) {
