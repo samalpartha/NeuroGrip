@@ -1,10 +1,21 @@
+"use client";
+
 import { PatientDetails } from "@/components/patients/patient-details";
-import { patients } from "@/lib/data";
+import { useDoc, useFirestore } from "@/firebase";
+import { doc } from "firebase/firestore";
 import { notFound } from "next/navigation";
 import { User } from "lucide-react";
+import type { Patient } from "@/lib/types";
+import withAuth from "@/components/auth/withAuth";
 
-export default function PatientDetailPage({ params }: { params: { id: string } }) {
-  const patient = patients.find((p) => p.id === params.id);
+function PatientDetailPage({ params }: { params: { id: string } }) {
+  const firestore = useFirestore();
+  const patientDocRef = doc(firestore, "patients", params.id);
+  const { data: patient, isLoading } = useDoc<Patient>(patientDocRef);
+
+  if (isLoading) {
+    return <div>Loading patient details...</div>;
+  }
 
   if (!patient) {
     notFound();
@@ -20,3 +31,5 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
     </div>
   );
 }
+
+export default withAuth(PatientDetailPage);

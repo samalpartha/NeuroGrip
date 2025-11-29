@@ -3,7 +3,6 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import type { Patient } from "@/lib/types";
 import {
   Form,
   FormControl,
@@ -26,6 +25,10 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
+import { useUser, useFirestore, updateDocumentNonBlocking } from "@/firebase";
+import { doc } from "firebase/firestore";
+import { updateProfile } from "firebase/auth";
+import { useEffect } from "react";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -36,24 +39,42 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-interface SettingsFormProps {
-  user: Patient;
-}
-
-export function SettingsForm({ user }: SettingsFormProps) {
+export function SettingsForm() {
   const { toast } = useToast();
+  const { user } = useUser();
+  const firestore = useFirestore();
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: user.name,
-      email: `${user.name.split(' ')[0].toLowerCase()}@example.com`,
+      name: "",
+      email: "",
       enableNotifications: true,
       darkMode: false,
     },
   });
 
+  useEffect(() => {
+    if (user) {
+      form.reset({
+        name: user.displayName || "",
+        email: user.email || "",
+        enableNotifications: true, // Placeholder
+        darkMode: document.documentElement.classList.contains('dark'),
+      });
+    }
+  }, [user, form]);
+
   const onSubmit: SubmitHandler<FormValues> = (data) => {
-    console.log("Updated settings:", data);
+    if (!user) return;
+    
+    // Update profile in Firebase Auth
+    updateProfile(user, { displayName: data.name });
+
+    // Update user document in Firestore
+    const userDocRef = doc(firestore, 'users', user.uid);
+    updateDocumentNonBlocking(userDocRef, { name: data.name });
+
     if (data.darkMode) {
         document.documentElement.classList.add('dark');
     } else {
@@ -64,6 +85,10 @@ export function SettingsForm({ user }: SettingsFormProps) {
       description: "Your preferences have been updated.",
     });
   };
+
+  if (!user) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Form {...form}>
@@ -94,7 +119,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                 <FormItem>
                   <FormLabel>Email Address</FormLabel>
                   <FormControl>
-                    <Input type="email" {...field} />
+                    <Input type="email" {...field} disabled />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
