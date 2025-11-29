@@ -27,7 +27,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, PlusCircle } from 'lucide-react';
 import { useFirestore, useUser } from '@/firebase';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -48,7 +48,7 @@ export function AddPatientForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
-      age: 0,
+      age: undefined,
       condition: '',
     },
   });
@@ -68,14 +68,12 @@ export function AddPatientForm() {
     try {
       const patientsCollectionRef = collection(firestore, 'patients');
       
-      // Use standard `addDoc` which returns a promise.
-      // The `useCollection` hook will automatically pick up the new document.
       await addDoc(patientsCollectionRef, {
         ...data,
         therapistId: user.uid,
         avatarUrl: `https://picsum.photos/seed/${data.name.split(' ')[0]}/100/100`,
         avatarHint: 'person',
-        lastSession: new Date().toISOString(),
+        lastSession: serverTimestamp(),
         therapistNotes: 'Newly added patient.',
         totalHours: 0,
         avgGripStrength: 0,
@@ -128,7 +126,7 @@ export function AddPatientForm() {
                   <FormItem>
                     <FormLabel>Full Name</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input placeholder="Jane Doe" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -141,7 +139,7 @@ export function AddPatientForm() {
                   <FormItem>
                     <FormLabel>Age</FormLabel>
                     <FormControl>
-                      <Input type="number" {...field} />
+                      <Input type="number" placeholder="45" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -154,7 +152,7 @@ export function AddPatientForm() {
                   <FormItem>
                     <FormLabel>Condition</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input placeholder="Post-stroke recovery" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -48,8 +48,8 @@ export function PatientExerciseForm({ patient }: PatientExerciseFormProps) {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      targetStrength: patient.targetStrength,
-      therapistNotes: patient.therapistNotes,
+      targetStrength: patient.targetStrength || 20,
+      therapistNotes: patient.therapistNotes || '',
     },
   });
 
