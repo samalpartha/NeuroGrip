@@ -17,7 +17,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import type { Patient } from "@/lib/types";
-import { ArrowRight } from "lucide-react";
 import { AddPatientForm } from "./add-patient-form";
 import { formatDistanceToNow } from 'date-fns';
 
@@ -44,7 +43,6 @@ export function PatientList({ patients }: PatientListProps) {
               <TableHead>Name</TableHead>
               <TableHead className="hidden md:table-cell">Condition</TableHead>
               <TableHead className="hidden sm:table-cell">Last Session</TableHead>
-              <TableHead className="text-right">Details</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -72,14 +70,6 @@ export function PatientList({ patients }: PatientListProps) {
                 <TableCell className="hidden md:table-cell">{patient.condition}</TableCell>
                 <TableCell className="hidden sm:table-cell">
                    {patient.lastSession ? formatDistanceToNow(new Date(patient.lastSession.seconds * 1000), { addSuffix: true }) : 'Never'}
-                </TableCell>
-                <TableCell className="text-right">
-                  <Button asChild variant="ghost" size="icon">
-                    <Link href={`/patients/${patient.id}`}>
-                      <ArrowRight className="h-4 w-4" />
-                      <span className="sr-only">View Details</span>
-                    </Link>
-                  </Button>
                 </TableCell>
               </TableRow>
             )) : (

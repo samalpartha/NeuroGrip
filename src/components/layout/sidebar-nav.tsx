@@ -19,7 +19,7 @@ import {
 import {
   BrainCircuit,
   Users,
-  Settings,
+  Home,
   LogOut,
 } from "lucide-react"
 import { useAuth, useUser } from "@/firebase"
@@ -28,14 +28,14 @@ import { useToast } from "@/hooks/use-toast"
 
 const menuItems = [
   {
+    href: "/",
+    icon: Home,
+    label: "Dashboard",
+  },
+  {
     href: "/patients",
     icon: Users,
     label: "Patients",
-  },
-  {
-    href: "/settings",
-    icon: Settings,
-    label: "Settings",
   },
 ]
 
@@ -65,9 +65,9 @@ export function SidebarNav() {
   };
 
   const getActiveItem = () => {
-    if (pathname === '/') return '/patients'; // Default to patients
+    if (pathname === '/') return '/';
     const activeItem = menuItems.find(item => item.href !== '/' && pathname.startsWith(item.href));
-    return activeItem ? activeItem.href : '/patients';
+    return activeItem ? activeItem.href : '/';
   }
 
   return (
@@ -105,20 +105,18 @@ export function SidebarNav() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild size="lg" tooltip={{ children: user?.displayName || 'User' }}>
-              <Link href="/settings">
+             <div className="flex items-center gap-3 p-2">
                 <Avatar className="size-8">
                   {user?.photoURL && <AvatarImage src={user.photoURL} alt="User Avatar" />}
                   <AvatarFallback>{user?.displayName?.charAt(0)?.toUpperCase() || 'U'}</AvatarFallback>
                 </Avatar>
-                <div className="flex flex-col">
-                  <span className="font-semibold">{user?.displayName || 'User'}</span>
-                  <span className="text-xs text-muted-foreground">
+                <div className="flex flex-col overflow-hidden">
+                  <span className="font-semibold truncate">{user?.displayName || 'User'}</span>
+                  <span className="text-xs text-muted-foreground truncate">
                     {user?.email || ''}
                   </span>
                 </div>
-              </Link>
-            </SidebarMenuButton>
+              </div>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
