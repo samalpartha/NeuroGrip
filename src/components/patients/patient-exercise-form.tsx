@@ -24,8 +24,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { useFirestore, updateDocumentNonBlocking } from "@/firebase";
-import { doc } from "firebase/firestore";
+import { useFirestore } from "@/firebase";
+import { doc, updateDoc } from "firebase/firestore";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   targetStrength: z.coerce.number().min(0, "Must be a positive number."),
@@ -41,6 +43,7 @@ interface PatientExerciseFormProps {
 export function PatientExerciseForm({ patient }: PatientExerciseFormProps) {
   const { toast } = useToast();
   const firestore = useFirestore();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -50,16 +53,27 @@ export function PatientExerciseForm({ patient }: PatientExerciseFormProps) {
     },
   });
 
-  const onSubmit: SubmitHandler<FormValues> = (data) => {
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
     if (!firestore || !patient.id) return;
+    setIsSubmitting(true);
 
-    const patientDocRef = doc(firestore, 'patients', patient.id);
-    updateDocumentNonBlocking(patientDocRef, data);
-    
-    toast({
-      title: "Patient Updated",
-      description: `${patient.name}'s exercise plan has been successfully updated.`,
-    });
+    try {
+      const patientDocRef = doc(firestore, 'patients', patient.id);
+      await updateDoc(patientDocRef, data);
+      
+      toast({
+        title: "Patient Updated",
+        description: `${patient.name}'s exercise plan has been successfully updated.`,
+      });
+    } catch (error: any) {
+        toast({
+        variant: "destructive",
+        title: "Failed to Update Patient",
+        description: error.message || "An unexpected error occurred.",
+      });
+    } finally {
+        setIsSubmitting(false);
+    }
   };
 
   return (
@@ -99,7 +113,10 @@ export function PatientExerciseForm({ patient }: PatientExerciseFormProps) {
             />
           </CardContent>
           <CardFooter>
-            <Button type="submit">Save Changes</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Save Changes
+            </Button>
           </CardFooter>
         </form>
       </Form>
