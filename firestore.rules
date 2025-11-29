@@ -7,37 +7,38 @@ service cloud.firestore {
     function isSignedIn() {
       return request.auth != null;
     }
-
-    // Helper function to verify a user is a therapist by checking their own user document.
-    // This can be used for single-document reads/writes.
-    function isTherapist(userId) {
-      return exists(/databases/$(database)/documents/users/$(userId)) &&
-             get(/databases/$(database)/documents/users/$(userId)).data.isTherapist == true;
+    
+    // Helper function to check if a user is a therapist by reading their own user document.
+    // This is safe because it only reads the user's OWN document.
+    function isTherapist() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isTherapist == true;
     }
 
     // Rules for the 'users' collection
     match /users/{userId} {
-      // Anyone can create their own user document upon signup.
+      // A user can create their own document.
       allow create: if isSignedIn() && request.auth.uid == userId;
 
-      // A user can only read, update, or delete their own document.
-      allow read, update, delete: if isSignedIn() && request.auth.uid == userId;
+      // A user can only read their own document.
+      allow read: if isSignedIn() && request.auth.uid == userId;
+      
+      // A user can update their own name.
+      allow update: if isSignedIn() && request.auth.uid == userId && request.resource.data.keys().hasOnly(['name']);
     }
 
     // Rules for the 'patients' collection
     match /patients/{patientId} {
       // A therapist can get a single patient document if they are the assigned therapist.
-      allow get: if isSignedIn() && isTherapist(request.auth.uid) && resource.data.therapistId == request.auth.uid;
+      allow get: if isTherapist() && get(/databases/$(database)/documents/patients/$(patientId)).data.therapistId == request.auth.uid;
       
       // A therapist can list patients ONLY if their query filters by their own therapistId.
-      // This is the crucial rule that avoids the get() limitation on list queries.
-      allow list: if isSignedIn() && isTherapist(request.auth.uid) && request.query.get("where.therapistId") == request.auth.uid;
+      allow list: if isTherapist() && request.query.get("where.therapistId") == request.auth.uid;
       
-      // A therapist can create a patient document if they are assigning it to themselves.
-      allow create: if isSignedIn() && isTherapist(request.auth.uid) && request.resource.data.therapistId == request.auth.uid;
+      // A therapist can create a patient document and must assign it to themselves.
+      allow create: if isTherapist() && request.resource.data.therapistId == request.auth.uid;
       
-      // A therapist can update or delete a patient document if they are the assigned therapist.
-      allow update, delete: if isSignedIn() && isTherapist(request.auth.uid) && resource.data.therapistId == request.auth.uid;
+      // The assigned therapist can update or delete their patient's document.
+      allow update, delete: if isTherapist() && resource.data.therapistId == request.auth.uid;
     }
   }
 }
