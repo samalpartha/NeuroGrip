@@ -68,6 +68,10 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    function isTherapist() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isTherapist == true;
+    }
+
     // /users/{userId}
     // Users can create their own profile.
     // Only the owner can read, update, or delete their own profile.
@@ -79,14 +83,17 @@ service cloud.firestore {
     // /patients/{patientId}
     // A patient document can only be accessed by the therapist assigned to them.
     match /patients/{patientId} {
-      // Allow read and list if the user is the therapist assigned to the patient.
-      allow get, list: if isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isTherapist == true && resource.data.therapistId == request.auth.uid;
+      // Allow a therapist to get a single patient document if they are the assigned therapist.
+      allow get: if isTherapist() && resource.data.therapistId == request.auth.uid;
       
+      // Allow a therapist to list patients if the query filters by their therapistId.
+      allow list: if isTherapist() && request.query.get("where")[0][0] == "therapistId" && request.query.get("where")[0][2] == request.auth.uid;
+
       // Allow create if the user is a therapist and is creating the patient for themselves.
-      allow create: if isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isTherapist == true && request.resource.data.therapistId == request.auth.uid;
+      allow create: if isTherapist() && request.resource.data.therapistId == request.auth.uid;
       
       // Allow update and delete if the user is the therapist assigned to the patient.
-      allow update, delete: if isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isTherapist == true && resource.data.therapistId == request.auth.uid;
+      allow update, delete: if isTherapist() && resource.data.therapistId == request.auth.uid;
     }
   }
 }
