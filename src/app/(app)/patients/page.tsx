@@ -2,7 +2,7 @@
 
 import { PatientList } from '@/components/patients/patient-list';
 import type { Patient } from '@/lib/types';
-import { Users } from 'lucide-react';
+import { Loader2, Users } from 'lucide-react';
 import { useFirestore, useUser, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 
@@ -24,7 +24,9 @@ function PatientsPage() {
         <h1 className="text-3xl font-bold tracking-tight">Manage Patients</h1>
       </div>
       {isLoading && !patients ? (
-        <p>Loading patients...</p>
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
       ) : (
         <PatientList patients={patients || []} />
       )}
