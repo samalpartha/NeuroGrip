@@ -25,9 +25,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { PlusCircle } from 'lucide-react';
-import { useFirestore, useUser, addDocumentNonBlocking } from '@/firebase';
-import { collection } from 'firebase/firestore';
+import { Loader2, PlusCircle } from 'lucide-react';
+import { useFirestore, useUser } from '@/firebase';
+import { collection, addDoc } from 'firebase/firestore';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -39,6 +39,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export function AddPatientForm() {
   const [open, setOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
   const { user } = useUser();
@@ -52,7 +53,7 @@ export function AddPatientForm() {
     },
   });
 
-  const onSubmit: SubmitHandler<FormValues> = (data) => {
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
     if (!user) {
       toast({
         variant: 'destructive',
@@ -62,29 +63,44 @@ export function AddPatientForm() {
       return;
     }
     
-    const patientsCollectionRef = collection(firestore, 'patients');
+    setIsSubmitting(true);
     
-    addDocumentNonBlocking(patientsCollectionRef, {
-      ...data,
-      therapistId: user.uid,
-      avatarUrl: `https://picsum.photos/seed/${data.name.split(' ')[0]}/100/100`,
-      avatarHint: 'person',
-      lastSession: new Date().toISOString(),
-      therapistNotes: 'Newly added patient.',
-      totalHours: 0,
-      avgGripStrength: 0,
-      goalsCompleted: 0,
-      targetStrength: 20, 
-      gripStrengthHistory: [],
-      therapyHoursHistory: [],
-    });
+    try {
+      const patientsCollectionRef = collection(firestore, 'patients');
+      
+      // Use standard `addDoc` which returns a promise.
+      // The `useCollection` hook will automatically pick up the new document.
+      await addDoc(patientsCollectionRef, {
+        ...data,
+        therapistId: user.uid,
+        avatarUrl: `https://picsum.photos/seed/${data.name.split(' ')[0]}/100/100`,
+        avatarHint: 'person',
+        lastSession: new Date().toISOString(),
+        therapistNotes: 'Newly added patient.',
+        totalHours: 0,
+        avgGripStrength: 0,
+        goalsCompleted: 0,
+        targetStrength: 20, 
+        gripStrengthHistory: [],
+        therapyHoursHistory: [],
+      });
 
-    toast({
-      title: 'Patient Added',
-      description: `${data.name} has been successfully added to the patient list.`,
-    });
-    setOpen(false);
-    form.reset();
+      toast({
+        title: 'Patient Added',
+        description: `${data.name} has been successfully added to your patient list.`,
+      });
+      setOpen(false);
+      form.reset();
+
+    } catch (error: any) {
+       toast({
+        variant: 'destructive',
+        title: 'Failed to Add Patient',
+        description: error.message || 'An unexpected error occurred.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -147,11 +163,14 @@ export function AddPatientForm() {
             </div>
             <DialogFooter>
               <DialogClose asChild>
-                <Button type="button" variant="secondary">
+                <Button type="button" variant="secondary" disabled={isSubmitting}>
                   Cancel
                 </Button>
               </DialogClose>
-              <Button type="submit">Add Patient</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Add Patient
+              </Button>
             </DialogFooter>
           </form>
         </Form>
