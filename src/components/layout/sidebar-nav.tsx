@@ -18,22 +18,15 @@ import {
 } from "@/components/ui/avatar"
 import {
   BrainCircuit,
-  LayoutDashboard,
   Users,
   Settings,
   LogOut,
-  Info,
 } from "lucide-react"
 import { useAuth, useUser } from "@/firebase"
 import { signOut } from "firebase/auth"
 import { useToast } from "@/hooks/use-toast"
 
 const menuItems = [
-  {
-    href: "/",
-    icon: LayoutDashboard,
-    label: "Dashboard",
-  },
   {
     href: "/patients",
     icon: Users,
@@ -72,9 +65,9 @@ export function SidebarNav() {
   };
 
   const getActiveItem = () => {
-    if (pathname === '/') return '/';
+    if (pathname === '/') return '/patients'; // Default to patients
     const activeItem = menuItems.find(item => item.href !== '/' && pathname.startsWith(item.href));
-    return activeItem ? activeItem.href : '/';
+    return activeItem ? activeItem.href : '/patients';
   }
 
   return (
