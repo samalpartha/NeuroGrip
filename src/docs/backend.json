@@ -1,0 +1,45 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the NeuroGrip system.",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth user ID." },
+        "name": { "type": "string", "description": "User's full name." },
+        "email": { "type": "string", "description": "User's email address." },
+        "isTherapist": { "type": "boolean", "description": "True if the user is a therapist." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of user creation."}
+      },
+      "required": ["uid", "name", "email", "isTherapist", "createdAt"]
+    },
+    "Patient": {
+      "title": "Patient",
+      "type": "object",
+      "description": "Represents a patient managed by a therapist.",
+      "properties": {
+        "name": { "type": "string", "description": "Patient's full name." },
+        "age": { "type": "number", "description": "Patient's age." },
+        "condition": { "type": "string", "description": "Patient's medical condition." },
+        "therapistId": { "type": "string", "description": "UID of the managing therapist." },
+        "lastSession": { "type": "string", "format": "date-time" },
+        "targetStrength": { "type": "number" },
+        "therapistNotes": { "type": "string" }
+      },
+      "required": ["name", "age", "condition", "therapistId"]
+    }
+  },
+  "auth": {
+    "providers": ["password"]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Stores public profile information for all users."
+    },
+    "/patients/{patientId}": {
+      "schema": { "$ref": "#/entities/Patient" },
+      "description": "Stores patient data, accessible by the assigned therapist."
+    }
+  }
+}

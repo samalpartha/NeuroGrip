@@ -26,7 +26,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { PlusCircle } from "lucide-react";
-import type { Patient } from "@/lib/types";
+import { useFirestore, useUser, addDocumentNonBlocking } from "@/firebase";
+import { collection } from "firebase/firestore";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -36,13 +37,12 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-interface AddPatientFormProps {
-  onAddPatient: (patient: Patient) => void;
-}
-
-export function AddPatientForm({ onAddPatient }: AddPatientFormProps) {
+export function AddPatientForm() {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
+  const firestore = useFirestore();
+  const { user } = useUser();
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -52,22 +52,33 @@ export function AddPatientForm({ onAddPatient }: AddPatientFormProps) {
     },
   });
 
-  const onSubmit: SubmitHandler<FormValues> = (data) => {
-    const newPatient: Patient = {
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Authentication Error",
+        description: "You must be logged in to add a patient.",
+      });
+      return;
+    }
+    
+    const patientsCollectionRef = collection(firestore, "patients");
+    
+    addDocumentNonBlocking(patientsCollectionRef, {
       ...data,
-      id: `user-${Math.random().toString(36).substr(2, 9)}`,
+      therapistId: user.uid,
       avatarUrl: `https://picsum.photos/seed/${data.name.split(' ')[0]}/100/100`,
       avatarHint: 'person',
-      lastSession: new Date().toISOString().split("T")[0],
+      lastSession: new Date().toISOString(),
       therapistNotes: "Newly added patient.",
       totalHours: 0,
       avgGripStrength: 0,
       goalsCompleted: 0,
-      targetStrength: 20, // Default target strength
+      targetStrength: 20, 
       gripStrengthHistory: [],
       therapyHoursHistory: [],
-    };
-    onAddPatient(newPatient);
+    });
+
     toast({
       title: "Patient Added",
       description: `${data.name} has been successfully added to the patient list.`,

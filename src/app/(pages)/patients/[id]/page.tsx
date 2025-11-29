@@ -1,8 +1,14 @@
+"use client";
+
 import { PatientDetails } from "@/components/patients/patient-details";
-import { patients } from "@/lib/data";
+import { useDoc, useFirestore } from "@/firebase";
+import { doc } from "firebase/firestore";
 import { notFound } from "next/navigation";
 import { User } from "lucide-react";
+import type { Patient } from "@/lib/types";
+import withAuth from "@/components/auth/withAuth";
 
+<<<<<<< HEAD
 export async function generateStaticParams() {
   return patients.map((patient) => ({
     id: patient.id,
@@ -16,6 +22,16 @@ export default async function PatientDetailPage({
 }) {
   const { id } = await params;
   const patient = patients.find((p) => p.id === id);
+=======
+function PatientDetailPage({ params }: { params: { id: string } }) {
+  const firestore = useFirestore();
+  const patientDocRef = doc(firestore, "patients", params.id);
+  const { data: patient, isLoading } = useDoc<Patient>(patientDocRef);
+
+  if (isLoading) {
+    return <div>Loading patient details...</div>;
+  }
+>>>>>>> 4cbf0a3 (I see this error with the app, reported by NextJS, please fix it. The er)
 
   if (!patient) {
     notFound();
@@ -31,3 +47,5 @@ export default async function PatientDetailPage({
     </div>
   );
 }
+
+export default withAuth(PatientDetailPage);

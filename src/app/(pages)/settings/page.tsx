@@ -1,10 +1,11 @@
+
+"use client";
+
 import { SettingsForm } from "@/components/settings/settings-form";
-import { patients } from "@/lib/data";
 import { Settings } from "lucide-react";
+import withAuth from "@/components/auth/withAuth";
 
-export default function SettingsPage() {
-    const user = patients[0]; // Using first patient as the example user
-
+function SettingsPage() {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center gap-4">
@@ -12,8 +13,10 @@ export default function SettingsPage() {
         <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
       </div>
       <div className="max-w-2xl">
-        <SettingsForm user={user} />
+        <SettingsForm />
       </div>
     </div>
   );
 }
+
+export default withAuth(SettingsPage);

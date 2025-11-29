@@ -2,7 +2,7 @@
 
 import React from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import {
   SidebarHeader,
   SidebarMenu,
@@ -26,9 +26,9 @@ import {
   LogOut,
   Info,
 } from "lucide-react"
-import { PlaceHolderImages } from "@/lib/placeholder-images"
-
-const userAvatar = PlaceHolderImages.find((img) => img.id === "user-avatar-1")
+import { useAuth, useUser } from "@/firebase"
+import { signOut } from "firebase/auth"
+import { useToast } from "@/hooks/use-toast"
 
 const menuItems = [
   {
@@ -45,7 +45,6 @@ const menuItems = [
     href: "/patients",
     icon: Users,
     label: "Patients",
-    badge: "3",
   },
    {
     href: "/about",
@@ -61,6 +60,28 @@ const menuItems = [
 
 export function SidebarNav() {
   const pathname = usePathname()
+  const router = useRouter();
+  const { toast } = useToast();
+  const auth = useAuth();
+  const { user } = useUser();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully logged out.",
+      });
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      toast({
+        variant: "destructive",
+        title: "Logout Failed",
+        description: "An error occurred while logging out. Please try again.",
+      });
+    }
+  };
 
   return (
     <>
@@ -82,7 +103,6 @@ export function SidebarNav() {
                 <Link href={item.href}>
                   <item.icon />
                   <span>{item.label}</span>
-                  {item.badge && <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>}
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -92,24 +112,22 @@ export function SidebarNav() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip={{ children: "Logout" }}>
-              <Link href="/login">
+            <SidebarMenuButton onClick={handleLogout} tooltip={{ children: "Logout" }}>
                 <LogOut />
                 <span>Logout</span>
-              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild size="lg" tooltip={{ children: "Alex Johnson" }}>
+            <SidebarMenuButton asChild size="lg" tooltip={{ children: user?.displayName || 'User' }}>
               <Link href="/settings">
                 <Avatar className="size-8">
-                  {userAvatar && <AvatarImage src={userAvatar.imageUrl} alt="User Avatar" />}
-                  <AvatarFallback>AJ</AvatarFallback>
+                  {user?.photoURL && <AvatarImage src={user.photoURL} alt="User Avatar" />}
+                  <AvatarFallback>{user?.displayName?.charAt(0) || 'U'}</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col">
-                  <span className="font-semibold">Alex Johnson</span>
+                  <span className="font-semibold">{user?.displayName || 'User'}</span>
                   <span className="text-xs text-muted-foreground">
-                    alex.j@example.com
+                    {user?.email || ''}
                   </span>
                 </div>
               </Link>

@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -52,163 +53,44 @@ service cloud.firestore {
  *
  * Structural Segregation: User data is strictly segregated. Patient and Therapist profiles are in separate subcollections under `/users/{userId}`. This prevents data leakage and simplifies rules by ensuring all documents within a given path share the same security context.
  */
+=======
+>>>>>>> 4cbf0a3 (I see this error with the app, reported by NextJS, please fix it. The er)
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ------------------------------------------------------------------------
-    // Helper Functions
-    // ------------------------------------------------------------------------
-
-    /**
-     * Returns true if the user is authenticated.
-     */
+    // Helper functions
     function isSignedIn() {
       return request.auth != null;
     }
 
-    /**
-     * Returns true if the authenticated user's UID matches the provided userId.
-     * This is the primary function for establishing document ownership.
-     */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    /**
-     * Returns true if the document being requested already exists in Firestore.
-     * Used to prevent updates or deletes on non-existent documents.
-     */
-    function docExists() {
-      return resource != null;
-    }
-
-    /**
-     * Returns true if the user is the owner of an existing document.
-     * A standard check for all update and delete operations.
-     */
-    function isExistingOwner(userId) {
-      return isOwner(userId) && docExists();
-    }
-
-    /**
-     * Checks if the currently authenticated user is listed in the patientIds
-     * array of a specific ExerciseProgram document. This grants them read access.
-     */
-    function isAssignedPatient(therapistId, programId) {
-      let programPath = /databases/$(database)/documents/users/$(therapistId)/exercisePrograms/$(programId);
-      return isSignedIn() && request.auth.uid in get(programPath).data.patientIds;
-    }
-
-    /**
-     * Validates that a required ownership field in a new document
-     * matches the UID of the user creating it.
-     */
-    function isCreatingOwnDoc(fieldName) {
-      return request.resource.data[fieldName] == request.auth.uid;
-    }
-
-    /**
-     * Validates that a required relational field in a new document
-     * matches the ID from the document's path.
-     */
-    function isPathConsistent(pathId, fieldName) {
-      return request.resource.data[fieldName] == pathId;
-    }
-
-    /**
-     * Validates that a specific field is not being changed during an update.
-     * Used to protect immutable fields like creator IDs or relational keys.
-     */
-    function isImmutable(fieldName) {
-      return request.resource.data[fieldName] == resource.data[fieldName];
-    }
-
-
-    // ------------------------------------------------------------------------
-    // Collection Rules
-    // ------------------------------------------------------------------------
-
-    /**
-     * @description A user can create their own profile and can fully manage it after creation. No other user can read or write to it.
-     * @path /users/{userId}
-     * @allow (create) An authenticated user creating their own user document: auth.uid === userId.
-     * @deny (get) Another user (auth.uid: 'user-xyz') trying to read '/users/user-abc'.
-     * @principle Restricts access to a user's own data tree and allows for self-creation of a root user profile.
-     */
+    // /users/{userId}
+    // Users can create their own profile.
+    // Only the owner can read, update, or delete their own profile.
     match /users/{userId} {
-      allow get, list, update, delete: if isOwner(userId);
-      allow create: if isOwner(userId) && isPathConsistent(userId, 'id');
+      allow read, update, delete: if isOwner(userId);
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
     }
 
-    /**
-     * @description The therapist profile can only be created and managed by the parent user.
-     * @path /users/{userId}/therapist/{therapistId}
-     * @allow (create) The owner user (auth.uid: 'user-abc') creating a document at '/users/user-abc/therapist/therapist-123'.
-     * @deny (update) Another user trying to update a therapist profile they do not own.
-     * @principle Enforces strict ownership within a user's data tree.
-     */
-    match /users/{userId}/therapist/{therapistId} {
-      allow get, list: if isOwner(userId);
-      allow create: if isOwner(userId) && isPathConsistent(userId, 'userId');
-      allow update: if isExistingOwner(userId) && isImmutable('userId');
-      allow delete: if isExistingOwner(userId);
-    }
-
-    /**
-     * @description The patient profile can only be created and managed by the parent user.
-     * @path /users/{userId}/patient/{patientId}
-     * @allow (create) The owner user (auth.uid: 'user-abc') creating a document at '/users/user-abc/patient/patient-123'.
-     * @deny (get) Another user trying to read a patient profile they do not own.
-     * @principle Enforces strict ownership within a user's data tree.
-     */
-    match /users/{userId}/patient/{patientId} {
-      allow get, list: if isOwner(userId);
-      allow create: if isOwner(userId) && isPathConsistent(userId, 'userId');
-      allow update: if isExistingOwner(userId) && isImmutable('userId');
-      allow delete: if isExistingOwner(userId);
-    }
-
-    /**
-     * @description Exercise programs can only be managed by the therapist who created them. Patients assigned to the program can read it.
-     * @path /users/{therapistId}/exercisePrograms/{programId}
-     * @allow (get) A patient (auth.uid: 'patient-xyz') reading a program they are assigned to.
-     * @deny (list) A patient trying to list all programs created by a therapist.
-     * @principle Enforces document ownership for writes, but allows shared, read-only access for a list of collaborators (patients).
-     */
-    match /users/{therapistId}/exercisePrograms/{programId} {
-      allow get: if isOwner(therapistId) || isAssignedPatient(therapistId, programId);
-      allow list: if isOwner(therapistId);
-      allow create: if isOwner(therapistId) && isPathConsistent(therapistId, 'therapistId');
-      allow update: if isExistingOwner(therapistId) && isImmutable('therapistId');
-      allow delete: if isExistingOwner(therapistId);
-    }
-
-    /**
-     * @description Exercises inherit permissions from their parent program. Only the therapist can manage them, but assigned patients can read them.
-     * @path /users/{therapistId}/exercisePrograms/{programId}/exercises/{exerciseId}
-     * @allow (list) An assigned patient (auth.uid: 'patient-xyz') listing exercises for a program they are a part of.
-     * @deny (create) A patient trying to create a new exercise within a therapist's program.
-     * @principle Secures a subcollection by checking permissions on its parent document.
-     */
-    match /users/{therapistId}/exercisePrograms/{programId}/exercises/{exerciseId} {
-      allow get, list: if isOwner(therapistId) || isAssignedPatient(therapistId, programId);
-      allow create, update, delete: if isOwner(therapistId);
-    }
-
-    /**
-     * @description Progress records can be created by patients assigned to the program. Only the patient who created a record can edit or delete it. The therapist can read all records for monitoring.
-     * @path /users/{therapistId}/exercisePrograms/{programId}/exercises/{exerciseId}/progressRecords/{recordId}
-     * @allow (create) An assigned patient (auth.uid: 'patient-xyz') creating a progress record for themselves.
-     * @deny (update) A therapist trying to modify a patient's progress record.
-     * @principle Implements a dual-access model: The patient has ownership for writes, while the therapist has read-only oversight.
-     */
-    match /users/{therapistId}/exercisePrograms/{programId}/exercises/{exerciseId}/progressRecords/{recordId} {
-      allow get: if isOwner(therapistId) || isOwner(resource.data.patientId);
-      allow list: if isOwner(therapistId);
-      allow create: if isAssignedPatient(therapistId, programId) && isCreatingOwnDoc('patientId');
-      allow update, delete: if docExists() && isOwner(resource.data.patientId);
+    // /patients/{patientId}
+    // A patient document can only be accessed by the therapist assigned to them.
+    match /patients/{patientId} {
+      // Allow read and list if the user is the therapist assigned to the patient.
+      allow get, list: if isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isTherapist == true && resource.data.therapistId == request.auth.uid;
+      
+      // Allow create if the user is a therapist and is creating the patient for themselves.
+      allow create: if isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isTherapist == true && request.resource.data.therapistId == request.auth.uid;
+      
+      // Allow update and delete if the user is the therapist assigned to the patient.
+      allow update, delete: if isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isTherapist == true && resource.data.therapistId == request.auth.uid;
     }
   }
 }
+<<<<<<< HEAD
 >>>>>>> 4abd708 (Set up a Firebase backend)
+=======
+>>>>>>> 4cbf0a3 (I see this error with the app, reported by NextJS, please fix it. The er)

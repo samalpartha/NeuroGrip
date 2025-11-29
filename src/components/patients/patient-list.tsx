@@ -17,15 +17,14 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import type { Patient } from "@/lib/types";
-import { ArrowRight, PlusCircle } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { AddPatientForm } from "./add-patient-form";
 
 interface PatientListProps {
   patients: Patient[];
-  onAddPatient: (patient: Patient) => void;
 }
 
-export function PatientList({ patients, onAddPatient }: PatientListProps) {
+export function PatientList({ patients }: PatientListProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -35,7 +34,7 @@ export function PatientList({ patients, onAddPatient }: PatientListProps) {
             A list of all patients currently undergoing therapy.
             </CardDescription>
         </div>
-        <AddPatientForm onAddPatient={onAddPatient} />
+        <AddPatientForm />
       </CardHeader>
       <CardContent>
         <Table>
@@ -48,7 +47,7 @@ export function PatientList({ patients, onAddPatient }: PatientListProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {patients.map((patient) => (
+            {patients.length > 0 ? patients.map((patient) => (
               <TableRow key={patient.id}>
                 <TableCell>
                   <div className="flex items-center gap-3">
@@ -82,7 +81,11 @@ export function PatientList({ patients, onAddPatient }: PatientListProps) {
                   </Button>
                 </TableCell>
               </TableRow>
-            ))}
+            )) : (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center">No patients found.</TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </CardContent>
