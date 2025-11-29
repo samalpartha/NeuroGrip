@@ -3,8 +3,13 @@ import { patients } from "@/lib/data";
 import { notFound } from "next/navigation";
 import { User } from "lucide-react";
 
-export default function PatientDetailPage({ params }: { params: { id: string } }) {
-  const patient = patients.find((p) => p.id === params.id);
+export default async function PatientDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const patient = patients.find((p) => p.id === id);
 
   if (!patient) {
     notFound();
