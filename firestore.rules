@@ -87,13 +87,13 @@ service cloud.firestore {
       allow get: if isTherapist() && resource.data.therapistId == request.auth.uid;
       
       // Allow a therapist to list patients if the query filters by their therapistId.
-      allow list: if isTherapist() && request.query.get("where")[0][0] == "therapistId" && request.query.get("where")[0][2] == request.auth.uid;
+      allow list: if isTherapist() && request.query.where[0][0] == "therapistId" && request.query.where[0][2] == request.auth.uid;
 
       // Allow create if the user is a therapist and is creating the patient for themselves.
       allow create: if isTherapist() && request.resource.data.therapistId == request.auth.uid;
       
       // Allow update and delete if the user is the therapist assigned to the patient.
-      allow update, delete: if isTherapist() && resource.data.therapistId == request.auth.uid;
+      allow update, delete: if isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isTherapist == true && resource.data.therapistId == request.auth.uid;
     }
   }
 }
