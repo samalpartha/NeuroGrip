@@ -24,7 +24,14 @@
         "therapistId": { "type": "string", "description": "UID of the managing therapist." },
         "lastSession": { "type": "string", "format": "date-time" },
         "targetStrength": { "type": "number" },
-        "therapistNotes": { "type": "string" }
+        "therapistNotes": { "type": "string" },
+        "avatarUrl": { "type": "string" },
+        "avatarHint": { "type": "string" },
+        "totalHours": { "type": "number" },
+        "avgGripStrength": { "type": "number" },
+        "goalsCompleted": { "type": "number" },
+        "gripStrengthHistory": { "type": "array", "items": { "type": "object", "properties": { "date": { "type": "string" }, "strength": { "type": "number" } } } },
+        "therapyHoursHistory": { "type": "array", "items": { "type": "object", "properties": { "date": { "type": "string" }, "hours": { "type": "number" } } } }
       },
       "required": ["name", "age", "condition", "therapistId"]
     }
