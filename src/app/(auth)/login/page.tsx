@@ -46,11 +46,13 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, values.email, values.password);
+      // The redirect is handled by the layout now.
+      // We can still show a success toast.
       toast({
         title: "Login Successful",
         description: "Welcome back!",
       });
-      router.push("/");
+      // The layout will redirect to '/'
     } catch (error: any) {
       console.error("Login failed:", error);
       toast({
@@ -64,7 +66,6 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 dark:bg-gray-900 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center items-center mb-4">
@@ -116,6 +117,5 @@ export default function LoginPage() {
           </div>
         </CardContent>
       </Card>
-    </div>
   );
 }

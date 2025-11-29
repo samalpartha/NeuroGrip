@@ -32,7 +32,6 @@ const formSchema = z.object({
 });
 
 export default function SignupPage() {
-  const router = useRouter();
   const { toast } = useToast();
   const auth = useAuth();
   const firestore = useFirestore();
@@ -57,6 +56,7 @@ export default function SignupPage() {
 
       const userDocRef = doc(firestore, 'users', user.uid);
       
+      // Use the non-blocking function to create the user document
       setDocumentNonBlocking(userDocRef, {
         uid: user.uid,
         name: values.name,
@@ -69,7 +69,7 @@ export default function SignupPage() {
         title: 'Account Created',
         description: 'You have been successfully signed up.',
       });
-      router.push('/');
+      // The layout will handle the redirect
 
     } catch (error: any) {
       console.error('Signup failed:', error);
@@ -92,7 +92,6 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 dark:bg-gray-900 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
            <div className="flex justify-center items-center mb-4">
@@ -187,6 +186,5 @@ export default function SignupPage() {
           </div>
         </CardContent>
       </Card>
-    </div>
   );
 }

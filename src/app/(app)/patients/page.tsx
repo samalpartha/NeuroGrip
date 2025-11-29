@@ -11,7 +11,6 @@ function PatientsPage() {
   const { user } = useUser();
 
   const patientsQuery = useMemoFirebase(() => {
-    // Only create the query if the user and firestore instances are available.
     if (!user || !firestore) return null;
     return query(collection(firestore, 'patients'), where('therapistId', '==', user.uid));
   }, [firestore, user]);

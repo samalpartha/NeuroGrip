@@ -10,7 +10,6 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarContent,
-  SidebarMenuBadge,
 } from "@/components/ui/sidebar"
 import {
   Avatar,
@@ -83,6 +82,12 @@ export function SidebarNav() {
     }
   };
 
+  const getActiveItem = () => {
+    if (pathname === '/') return '/';
+    const activeItem = menuItems.find(item => item.href !== '/' && pathname.startsWith(item.href));
+    return activeItem ? activeItem.href : '/';
+  }
+
   return (
     <>
       <SidebarHeader>
@@ -97,7 +102,7 @@ export function SidebarNav() {
             <SidebarMenuItem key={item.label}>
               <SidebarMenuButton
                 asChild
-                isActive={pathname === item.href}
+                isActive={getActiveItem() === item.href}
                 tooltip={{ children: item.label }}
               >
                 <Link href={item.href}>
@@ -122,7 +127,7 @@ export function SidebarNav() {
               <Link href="/settings">
                 <Avatar className="size-8">
                   {user?.photoURL && <AvatarImage src={user.photoURL} alt="User Avatar" />}
-                  <AvatarFallback>{user?.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                  <AvatarFallback>{user?.displayName?.charAt(0)?.toUpperCase() || 'U'}</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col">
                   <span className="font-semibold">{user?.displayName || 'User'}</span>

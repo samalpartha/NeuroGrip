@@ -17,7 +17,7 @@ export interface Patient {
   avatarHint: string;
   lastSession: string;
   therapistNotes: string;
-  therapistId?: string; // a patient belongs to a therapist
+  therapistId: string; // a patient must belong to a therapist
   totalHours: number;
   avgGripStrength: number;
   goalsCompleted: number;
