@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -18,9 +17,9 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { BrainCircuit, Loader2 } from 'lucide-react';
-import { useAuth, useFirestore, setDocumentNonBlocking } from '@/firebase';
+import { useAuth, useFirestore } from '@/firebase';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { doc, serverTimestamp } from 'firebase/firestore';
+import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { useState } from 'react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
@@ -56,20 +55,19 @@ export default function SignupPage() {
 
       const userDocRef = doc(firestore, 'users', user.uid);
       
-      // Use the non-blocking function to create the user document
-      setDocumentNonBlocking(userDocRef, {
+      await setDoc(userDocRef, {
         uid: user.uid,
         name: values.name,
         email: values.email,
         isTherapist: values.userType === 'therapist',
         createdAt: serverTimestamp(),
-      }, {});
+      });
       
       toast({
         title: 'Account Created',
         description: 'You have been successfully signed up.',
       });
-      // The layout will handle the redirect
+      // The auth layout will handle the redirect
 
     } catch (error: any) {
       console.error('Signup failed:', error);
