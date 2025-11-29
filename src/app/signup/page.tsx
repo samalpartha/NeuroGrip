@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -128,7 +129,7 @@ export default function SignupPage() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="••••••••" />
+                      <Input type="password" placeholder="••••••••" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -161,7 +162,7 @@ export default function SignupPage() {
                       </RadioGroup>
                     </FormControl>
                     <FormMessage />
-                  </FormItem
+                  </FormItem>
                 )}
               />
               <Button type="submit" className="w-full" disabled={isLoading}>

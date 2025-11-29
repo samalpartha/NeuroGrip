@@ -1,361 +1,52 @@
 {
   "entities": {
     "User": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "User",
       "type": "object",
       "description": "Represents a user of the NeuroGrip system.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the user.",
-          "format": "uuid"
-        },
-        "email": {
-          "type": "string",
-          "description": "User's email address for login.",
-          "format": "email"
-        },
-        "name": {
-          "type": "string",
-          "description": "User's full name."
-        },
-        "isTherapist": {
-          "type": "boolean",
-          "description": "Indicates whether the user is a therapist or a patient."
-        }
+        "uid": { "type": "string", "description": "Firebase Auth user ID." },
+        "name": { "type": "string", "description": "User's full name." },
+        "email": { "type": "string", "description": "User's email address." },
+        "isTherapist": { "type": "boolean", "description": "True if the user is a therapist." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of user creation."}
       },
-      "required": [
-        "id",
-        "email",
-        "name",
-        "isTherapist"
-      ]
+      "required": ["uid", "name", "email", "isTherapist", "createdAt"]
     },
     "Patient": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Patient",
       "type": "object",
-      "description": "Represents a patient using the NeuroGrip system.",
+      "description": "Represents a patient managed by a therapist.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the patient.",
-          "format": "uuid"
-        },
-        "userId": {
-          "type": "string",
-          "description": "Reference to User. (Relationship: User 1:1 Patient)"
-        },
-        "dateOfBirth": {
-          "type": "string",
-          "description": "Patient's date of birth.",
-          "format": "date"
-        },
-        "medicalHistory": {
-          "type": "string",
-          "description": "Patient's medical history."
-        }
+        "name": { "type": "string", "description": "Patient's full name." },
+        "age": { "type": "number", "description": "Patient's age." },
+        "condition": { "type": "string", "description": "Patient's medical condition." },
+        "therapistId": { "type": "string", "description": "UID of the managing therapist." },
+        "lastSession": { "type": "string", "format": "date-time" },
+        "targetStrength": { "type": "number" },
+        "therapistNotes": { "type": "string" },
+        "avatarUrl": { "type": "string" },
+        "avatarHint": { "type": "string" },
+        "totalHours": { "type": "number" },
+        "avgGripStrength": { "type": "number" },
+        "goalsCompleted": { "type": "number" },
+        "gripStrengthHistory": { "type": "array", "items": { "type": "object", "properties": { "date": { "type": "string" }, "strength": { "type": "number" } } } },
+        "therapyHoursHistory": { "type": "array", "items": { "type": "object", "properties": { "date": { "type": "string" }, "hours": { "type": "number" } } } }
       },
-      "required": [
-        "id",
-        "userId",
-        "dateOfBirth"
-      ]
-    },
-    "Therapist": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Therapist",
-      "type": "object",
-      "description": "Represents a therapist using the NeuroGrip system.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the therapist.",
-          "format": "uuid"
-        },
-        "userId": {
-          "type": "string",
-          "description": "Reference to User. (Relationship: User 1:1 Therapist)"
-        },
-        "specialization": {
-          "type": "string",
-          "description": "Therapist's area of specialization."
-        }
-      },
-      "required": [
-        "id",
-        "userId",
-        "specialization"
-      ]
-    },
-    "ExerciseProgram": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "ExerciseProgram",
-      "type": "object",
-      "description": "Represents a customized exercise program for a patient.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the exercise program.",
-          "format": "uuid"
-        },
-        "therapistId": {
-          "type": "string",
-          "description": "Reference to Therapist. (Relationship: Therapist 1:N ExerciseProgram)"
-        },
-        "name": {
-          "type": "string",
-          "description": "Name of the exercise program."
-        },
-        "description": {
-          "type": "string",
-          "description": "Description of the exercise program."
-        },
-        "exerciseIds": {
-          "type": "array",
-          "description": "References to Exercises. (Relationship: ExerciseProgram 1:N Exercise)",
-          "items": {
-            "type": "string"
-          }
-        },
-        "patientIds": {
-          "type": "array",
-          "description": "References to Patients assigned this program. (Relationship: Patient N:N ExerciseProgram)",
-          "items": {
-            "type": "string"
-          }
-        }
-      },
-      "required": [
-        "id",
-        "therapistId",
-        "name",
-        "description",
-        "exerciseIds"
-      ]
-    },
-    "Exercise": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Exercise",
-      "type": "object",
-      "description": "Represents a single exercise within an exercise program.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the exercise.",
-          "format": "uuid"
-        },
-        "name": {
-          "type": "string",
-          "description": "Name of the exercise."
-        },
-        "description": {
-          "type": "string",
-          "description": "Description of the exercise."
-        },
-        "sets": {
-          "type": "number",
-          "description": "Number of sets for the exercise."
-        },
-        "repetitions": {
-          "type": "number",
-          "description": "Number of repetitions per set."
-        },
-        "targetGripStrength": {
-          "type": "number",
-          "description": "Target grip strength for the exercise."
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "description",
-        "sets",
-        "repetitions",
-        "targetGripStrength"
-      ]
-    },
-    "ProgressRecord": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "ProgressRecord",
-      "type": "object",
-      "description": "Represents a patient's progress record for a specific exercise session.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the progress record.",
-          "format": "uuid"
-        },
-        "patientId": {
-          "type": "string",
-          "description": "Reference to Patient. (Relationship: Patient 1:N ProgressRecord)"
-        },
-        "exerciseId": {
-          "type": "string",
-          "description": "Reference to Exercise. (Relationship: Exercise 1:N ProgressRecord)"
-        },
-        "timestamp": {
-          "type": "string",
-          "description": "Timestamp of the exercise session.",
-          "format": "date-time"
-        },
-        "gripStrength": {
-          "type": "number",
-          "description": "Grip strength achieved during the session."
-        },
-        "repetitionsCompleted": {
-          "type": "number",
-          "description": "Number of repetitions completed during the session."
-        }
-      },
-      "required": [
-        "id",
-        "patientId",
-        "exerciseId",
-        "timestamp",
-        "gripStrength",
-        "repetitionsCompleted"
-      ]
+      "required": ["name", "age", "condition", "therapistId"]
     }
   },
   "auth": {
-    "providers": [
-      "password",
-      "anonymous"
-    ]
+    "providers": ["password"]
   },
   "firestore": {
-    "structure": [
-      {
-        "path": "/users/{userId}",
-        "definition": {
-          "entityName": "User",
-          "schema": {
-            "$ref": "#/backend/entities/User"
-          },
-          "description": "Stores user profile information. Accessible only by the user with the matching userId.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/therapist/{therapistId}",
-        "definition": {
-          "entityName": "Therapist",
-          "schema": {
-            "$ref": "#/backend/entities/Therapist"
-          },
-          "description": "Stores therapist specific data. Accessible only by the user with the matching userId.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user."
-            },
-            {
-              "name": "therapistId",
-              "description": "The unique identifier of the therapist."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/patient/{patientId}",
-        "definition": {
-          "entityName": "Patient",
-          "schema": {
-            "$ref": "#/backend/entities/Patient"
-          },
-          "description": "Stores patient specific data. Accessible only by the user with the matching userId.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user."
-            },
-            {
-              "name": "patientId",
-              "description": "The unique identifier of the patient."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{therapistId}/exercisePrograms/{exerciseProgramId}",
-        "definition": {
-          "entityName": "ExerciseProgram",
-          "schema": {
-            "$ref": "#/backend/entities/ExerciseProgram"
-          },
-          "description": "Stores exercise programs created by a therapist. Accessible only by the therapist with the matching therapistId.",
-          "params": [
-            {
-              "name": "therapistId",
-              "description": "The unique identifier of the therapist."
-            },
-            {
-              "name": "exerciseProgramId",
-              "description": "The unique identifier of the exercise program."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{therapistId}/exercisePrograms/{exerciseProgramId}/exercises/{exerciseId}",
-        "definition": {
-          "entityName": "Exercise",
-          "schema": {
-            "$ref": "#/backend/entities/Exercise"
-          },
-          "description": "Stores exercises within an exercise program. Accessible only by the therapist who created the program.",
-          "params": [
-            {
-              "name": "therapistId",
-              "description": "The unique identifier of the therapist."
-            },
-            {
-              "name": "exerciseProgramId",
-              "description": "The unique identifier of the exercise program."
-            },
-            {
-              "name": "exerciseId",
-              "description": "The unique identifier of the exercise."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{therapistId}/exercisePrograms/{exerciseProgramId}/exercises/{exerciseId}/progressRecords/{progressRecordId}",
-        "definition": {
-          "entityName": "ProgressRecord",
-          "schema": {
-            "$ref": "#/backend/entities/ProgressRecord"
-          },
-          "description": "Stores progress records for exercises within an exercise program. Accessible only by the therapist who created the program.",
-          "params": [
-            {
-              "name": "therapistId",
-              "description": "The unique identifier of the therapist."
-            },
-            {
-              "name": "exerciseProgramId",
-              "description": "The unique identifier of the exercise program."
-            },
-            {
-              "name": "exerciseId",
-              "description": "The unique identifier of the exercise."
-            },
-            {
-              "name": "progressRecordId",
-              "description": "The unique identifier of the progress record."
-            }
-          ]
-        }
-      }
-    ],
-    "reasoning": "This Firestore structure prioritizes security and scalability for the NeuroGrip application, adhering to the principles of Authorization Independence, Clarity of Intent, and DBAC. It leverages Structural Segregation to enforce consistent security postures within collections, and Access Modeling to standardize authorization patterns. All data is scoped to a user. This design addresses the need for customizable exercise programs, progress tracking, and user management, focusing on simplicity and debuggability for hackathon success.\n\n**Authorization Independence (Denormalization):**\n*   User profiles (`/users/{userId}`) are the root of most data. Therapist documents are created under `/users/{userId}/therapist`. Patient documents are created under `/users/{userId}/patient`.\n*   Exercise programs, exercises, and progress records are scoped to each therapist.\n    *   `/users/{therapistId}/exercisePrograms/{exerciseProgramId}`\n    *   `/users/{therapistId}/exercisePrograms/{exerciseProgramId}/exercises/{exerciseId}`\n    *   `/users/{therapistId}/exercisePrograms/{exerciseProgramId}/exercises/{exerciseId}/progressRecords/{progressRecordId}`\n\n**Structural Segregation:**\n*   User-specific data (profiles, therapist details, patient details) is stored under `/users/{userId}`, ensuring private access based on path ownership.\n*   Exercise programs and associated exercises and progress records are stored under the therapist's ID, enabling clear ownership and access control for therapists.\n\n**Access Modeling:**\n*   Path-Based Ownership: User profiles are accessed via `/users/{userId}`, restricting access to the profile owner.\n*   Therapist Data: Therapist data is stored under /users/{userId}/therapist/{therapistId} and can only be accessed by the specified therapist.\n*   Patient Data: Patient data is stored under /users/{userId}/patient/{patientId} and can only be accessed by the specified patient.\n\n**QAPs (Rules are not Filters):**\n*   List operations are secured via path-based ownership, preventing unauthorized access to user data. A therapist can only list exercise programs, exercises, or progress records under their `/users/{therapistId}` path."
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Stores public profile information for all users."
+    },
+    "/patients/{patientId}": {
+      "schema": { "$ref": "#/entities/Patient" },
+      "description": "Stores patient data, accessible by the assigned therapist."
+    }
   }
 }
