@@ -11,7 +11,7 @@ function PatientsPage() {
   const { user } = useUser();
 
   const patientsQuery = useMemoFirebase(() => {
-    if (!user) return null;
+    if (!user || !firestore) return null;
     return query(collection(firestore, 'patients'), where('therapistId', '==', user.uid));
   }, [firestore, user]);
 
