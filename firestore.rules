@@ -3,33 +3,34 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function isTherapist(userId) {
-      return get(/databases/$(database)/documents/users/$(userId)).data.isTherapist == true;
-    }
-
     match /users/{userId} {
       // Anyone can create their own user document upon signing up.
       allow create: if request.auth != null && request.auth.uid == userId;
-
       // Users can only read their own profile.
       allow read: if request.auth != null && request.auth.uid == userId;
-
       // Users can update their own name.
       allow update: if request.auth != null && request.auth.uid == userId && request.resource.data.keys().hasOnly(['name']);
     }
 
     match /patients/{patientId} {
-      // GET: A therapist can get a patient document if they are the assigned therapist.
-      allow get: if request.auth != null && isTherapist(request.auth.uid) && resource.data.therapistId == request.auth.uid;
+      // GET: A user can get a patient document if they are a therapist and are the assigned therapist.
+      allow get: if request.auth != null 
+                  && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isTherapist == true
+                  && resource.data.therapistId == request.auth.uid;
       
-      // LIST: A therapist can list patients, but client queries MUST filter by therapistId.
-      allow list: if request.auth != null && isTherapist(request.auth.uid);
+      // LIST: A therapist can list patients, but the query from the client MUST filter by therapistId.
+      allow list: if request.auth != null 
+                  && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isTherapist == true;
 
       // CREATE: A therapist can create a new patient document, and they must be the therapistId.
-      allow create: if request.auth != null && isTherapist(request.auth.uid) && request.resource.data.therapistId == request.auth.uid;
+      allow create: if request.auth != null 
+                    && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isTherapist == true
+                    && request.resource.data.therapistId == request.auth.uid;
       
       // UPDATE, DELETE: The assigned therapist can update or delete their patient's document.
-      allow update, delete: if request.auth != null && isTherapist(request.auth.uid) && resource.data.therapistId == request.auth.uid;
+      allow update, delete: if request.auth != null 
+                            && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isTherapist == true
+                            && resource.data.therapistId == request.auth.uid;
     }
   }
 }
