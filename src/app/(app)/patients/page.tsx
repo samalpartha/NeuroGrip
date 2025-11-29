@@ -10,20 +10,23 @@ function PatientsPage() {
   const firestore = useFirestore();
   const { user } = useUser();
 
+  // This is the critical part:
+  // 1. useMemoFirebase ensures the query object is stable between re-renders.
+  // 2. The factory function checks for `firestore` and `user` *before* creating the query.
+  // 3. This guarantees the query is never created with a null `user.uid`.
   const patientsQuery = useMemoFirebase(() => {
-    // IMPORTANT: Only construct the query if we have a user and firestore instance.
-    // This prevents queries with a null UID, which security rules would block.
-    if (!user || !firestore) {
+    if (!firestore || !user) {
       return null;
     }
     return query(collection(firestore, 'patients'), where('therapistId', '==', user.uid));
-  }, [firestore, user]);
+  }, [firestore, user]); // Dependencies are `firestore` and `user`
 
+  // useCollection will now receive a `null` query until user is loaded,
+  // and will correctly re-run when the query becomes available.
   const { data: patients, isLoading } = useCollection<Patient>(patientsQuery);
 
-  // The isLoading state from useCollection will be true until the query is run and data is fetched.
-  // We also check if patients is null because the query itself is null until the user is loaded.
-  const isContentLoading = isLoading || patients === null;
+  // The content is loading if the hook is loading OR if the query is still null (because user/firestore aren't ready)
+  const isContentLoading = isLoading || !patientsQuery;
 
   return (
     <div className="flex flex-col gap-8">
