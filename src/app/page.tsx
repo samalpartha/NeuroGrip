@@ -1,6 +1,5 @@
 'use client';
 
-import { MainLayout } from '@/components/layout/main-layout';
 import { StatsCards } from '@/components/dashboard/stats-cards';
 import { TherapyProgress } from '@/components/dashboard/therapy-progress';
 import { WelcomeHeader } from '@/components/dashboard/welcome-header';
@@ -8,6 +7,7 @@ import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebas
 import { collection, query, where } from 'firebase/firestore';
 import type { Patient } from '@/lib/types';
 import { useMemo } from 'react';
+import PagesLayout from '@/app/(pages)/layout';
 
 function Home() {
   const { user } = useUser();
@@ -42,10 +42,10 @@ function Home() {
 
 
   return (
-    <MainLayout>
+    <PagesLayout>
       <div className="flex flex-col gap-8">
         <WelcomeHeader />
-        {isLoading ? (
+        {isLoading && !patients ? (
           <div>Loading stats...</div>
         ) : (
           <>
@@ -61,7 +61,7 @@ function Home() {
           </>
         )}
       </div>
-    </MainLayout>
+    </PagesLayout>
   );
 }
 
