@@ -3,6 +3,12 @@ import { patients } from "@/lib/data";
 import { notFound } from "next/navigation";
 import { User } from "lucide-react";
 
+export async function generateStaticParams() {
+  return patients.map((patient) => ({
+    id: patient.id,
+  }));
+}
+
 export default async function PatientDetailPage({
   params,
 }: {
