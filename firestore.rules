@@ -7,12 +7,6 @@ service cloud.firestore {
     function isSignedIn() {
       return request.auth != null;
     }
-    
-    // Helper function to check if a user is a therapist by reading their own user document.
-    // This is safe because it only reads the user's OWN document.
-    function isTherapist() {
-      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isTherapist == true;
-    }
 
     // Rules for the 'users' collection
     match /users/{userId} {
@@ -28,17 +22,18 @@ service cloud.firestore {
 
     // Rules for the 'patients' collection
     match /patients/{patientId} {
-      // A therapist can get a single patient document if they are the assigned therapist.
-      allow get: if isTherapist() && get(/databases/$(database)/documents/patients/$(patientId)).data.therapistId == request.auth.uid;
-      
-      // A therapist can list patients ONLY if their query filters by their own therapistId.
-      allow list: if isTherapist() && request.query.get("where.therapistId") == request.auth.uid;
-      
-      // A therapist can create a patient document and must assign it to themselves.
-      allow create: if isTherapist() && request.resource.data.therapistId == request.auth.uid;
-      
-      // The assigned therapist can update or delete their patient's document.
-      allow update, delete: if isTherapist() && resource.data.therapistId == request.auth.uid;
+      // READ: 
+      // - A therapist can GET a single patient document if they are the assigned therapist.
+      // - A therapist can LIST patients ONLY if their query filters by their own therapistId.
+      allow read: if isSignedIn() 
+                  && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isTherapist == true
+                  && (resource == null || resource.data.therapistId == request.auth.uid);
+
+      // WRITE (Create, Update, Delete)
+      // A therapist can create, update, or delete a patient document if they are the assigned therapist.
+      allow write: if isSignedIn() 
+                   && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isTherapist == true
+                   && (request.resource.data.therapistId == request.auth.uid || resource.data.therapistId == request.auth.uid);
     }
   }
 }
