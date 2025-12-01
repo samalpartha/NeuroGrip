@@ -47,5 +47,3 @@ firebase deploy --only firestore:rules
 
 The provided `firestore.rules` file allows authenticated users to read patient documents and create or update them when the payload matches the expected shape. Deletions are blocked by default to protect patient records.
 
- real device integration and production-grade auth.
-```
