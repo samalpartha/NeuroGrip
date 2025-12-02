@@ -25,7 +25,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useFirestore } from "@/firebase";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc } from '@/lib/db';
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 
@@ -60,19 +60,19 @@ export function PatientExerciseForm({ patient }: PatientExerciseFormProps) {
     try {
       const patientDocRef = doc(firestore, 'patients', patient.id);
       await updateDoc(patientDocRef, data);
-      
+
       toast({
         title: "Patient Updated",
         description: `${patient.name}'s exercise plan has been successfully updated.`,
       });
     } catch (error: any) {
-        toast({
+      toast({
         variant: "destructive",
         title: "Failed to Update Patient",
         description: error.message || "An unexpected error occurred.",
       });
     } finally {
-        setIsSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 

@@ -27,9 +27,10 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { useUser, useFirestore } from "@/firebase";
 import { doc, updateDoc } from "firebase/firestore";
-import { updateProfile, type Auth } from "firebase/auth";
+import { updateProfile } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { useTheme } from "next-themes";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -45,6 +46,7 @@ export function SettingsForm() {
   const { user, auth } = useUser();
   const firestore = useFirestore();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -61,28 +63,11 @@ export function SettingsForm() {
       form.reset({
         name: user.displayName || "",
         email: user.email || "",
-        enableNotifications: true, // Placeholder
-        darkMode: document.documentElement.classList.contains('dark'),
+        enableNotifications: true,
+        darkMode: theme === 'dark',
       });
     }
-  }, [user, form]);
-  
-  useEffect(() => {
-    const isDark = document.documentElement.classList.contains('dark');
-    form.setValue('darkMode', isDark);
-
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.attributeName === 'class') {
-          const isDarkNow = (mutation.target as HTMLElement).classList.contains('dark');
-          form.setValue('darkMode', isDarkNow);
-        }
-      });
-    });
-
-    observer.observe(document.documentElement, { attributes: true });
-    return () => observer.disconnect();
-  }, [form]);
+  }, [user, form, theme]);
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     if (!user || !firestore || !auth) return;
@@ -98,16 +83,14 @@ export function SettingsForm() {
       const userDocRef = doc(firestore, 'users', user.uid);
       await updateDoc(userDocRef, { name: data.name });
 
-      if (data.darkMode) {
-          document.documentElement.classList.add('dark');
-      } else {
-          document.documentElement.classList.remove('dark');
-      }
+      // Update theme
+      setTheme(data.darkMode ? 'dark' : 'light');
+
       toast({
         title: "Settings Saved",
         description: "Your preferences have been updated.",
       });
-    } catch(e) {
+    } catch (e) {
       console.error(e);
       toast({
         variant: 'destructive',
@@ -163,7 +146,7 @@ export function SettingsForm() {
               )}
             />
           </CardContent>
-          <Separator/>
+          <Separator />
           <CardHeader>
             <CardTitle>Preferences</CardTitle>
             <CardDescription>Customize your app experience.</CardDescription>
@@ -184,7 +167,7 @@ export function SettingsForm() {
                 </FormItem>
               )}
             />
-             <FormField
+            <FormField
               control={form.control}
               name="darkMode"
               render={({ field }) => (
@@ -194,7 +177,14 @@ export function SettingsForm() {
                     <FormDescription>Enable a darker color theme for the interface.</FormDescription>
                   </div>
                   <FormControl>
-                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={(checked) => {
+                        field.onChange(checked);
+                        // Optional: Instant preview
+                        setTheme(checked ? 'dark' : 'light');
+                      }}
+                    />
                   </FormControl>
                 </FormItem>
               )}

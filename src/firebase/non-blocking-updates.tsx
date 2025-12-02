@@ -1,5 +1,5 @@
 'use client';
-    
+
 import {
   setDoc,
   addDoc,
@@ -7,10 +7,12 @@ import {
   deleteDoc,
   CollectionReference,
   DocumentReference,
-  SetOptions,
-} from 'firebase/firestore';
+} from '@/lib/db';
+
+// Mock SetOptions type
+export type SetOptions = { merge?: boolean };
 import { errorEmitter } from '@/firebase/error-emitter';
-import {FirestorePermissionError} from '@/firebase/errors';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 /**
  * Initiates a setDoc operation for a document reference.

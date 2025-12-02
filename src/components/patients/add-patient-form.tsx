@@ -27,7 +27,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, PlusCircle } from 'lucide-react';
 import { useFirestore, useUser } from '@/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp } from '@/lib/db';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -48,7 +48,7 @@ export function AddPatientForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
-      age: undefined,
+      age: 0, // Initialize with 0 or a valid number
       condition: '',
     },
   });
@@ -62,12 +62,12 @@ export function AddPatientForm() {
       });
       return;
     }
-    
+
     setIsSubmitting(true);
-    
+
     try {
       const patientsCollectionRef = collection(firestore, 'patients');
-      
+
       await addDoc(patientsCollectionRef, {
         ...data,
         therapistId: user.uid,
@@ -78,7 +78,7 @@ export function AddPatientForm() {
         totalHours: 0,
         avgGripStrength: 0,
         goalsCompleted: 0,
-        targetStrength: 20, 
+        targetStrength: 20,
         gripStrengthHistory: [],
         therapyHoursHistory: [],
       });
@@ -91,7 +91,7 @@ export function AddPatientForm() {
       form.reset();
 
     } catch (error: any) {
-       toast({
+      toast({
         variant: 'destructive',
         title: 'Failed to Add Patient',
         description: error.message || 'An unexpected error occurred.',

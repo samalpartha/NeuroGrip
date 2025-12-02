@@ -1,9 +1,11 @@
 'use client';
 
 import React, { DependencyList, createContext, useContext, ReactNode, useMemo, useState, useEffect } from 'react';
-import { FirebaseApp } from 'firebase/app';
-import { Firestore } from 'firebase/firestore';
-import { Auth, User, onAuthStateChanged } from 'firebase/auth';
+import { Firestore } from '@/lib/db';
+import { Auth, User, onAuthStateChanged } from '@/lib/mock-auth';
+
+// Mock FirebaseApp type
+export type FirebaseApp = any;
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener'
 
 interface FirebaseProviderProps {
@@ -117,7 +119,7 @@ export const useFirebase = (): FirebaseServicesAndUser => {
     firestore: context.firestore,
     auth: context.auth,
     user: context.user,
-isUserLoading: context.isUserLoading,
+    isUserLoading: context.isUserLoading,
     userError: context.userError,
   };
 };
@@ -137,16 +139,16 @@ export const useFirebaseApp = (): FirebaseApp => {
   return firebaseApp;
 };
 
-type MemoFirebase <T> = T & {__memo?: boolean};
+type MemoFirebase<T> = T & { __memo?: boolean };
 
 export function useMemoFirebase<T>(factory: () => T, deps: DependencyList): T | (MemoFirebase<T>) {
   const memoized = useMemo(factory, deps);
-  
-  if(typeof memoized !== 'object' || memoized === null) return memoized;
-  if(!('__memo' in memoized)) {
+
+  if (typeof memoized !== 'object' || memoized === null) return memoized;
+  if (!('__memo' in memoized)) {
     (memoized as MemoFirebase<T>).__memo = true;
   }
-  
+
   return memoized;
 }
 

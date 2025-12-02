@@ -17,23 +17,30 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import type { Patient } from "@/lib/types";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Users } from "lucide-react";
 import { AddPatientForm } from "./add-patient-form";
 import { formatDistanceToNow } from 'date-fns';
 
 interface PatientListProps {
   patients: Patient[];
+  totalCount?: number;
+  filteredCount?: number;
+  hasActiveFilters?: boolean;
 }
 
-export function PatientList({ patients }: PatientListProps) {
+export function PatientList({ patients, totalCount, filteredCount, hasActiveFilters }: PatientListProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-            <CardTitle>All Patients</CardTitle>
-            <CardDescription>
-            A list of all patients currently undergoing therapy.
-            </CardDescription>
+          <CardTitle>All Patients</CardTitle>
+          <CardDescription>
+            {hasActiveFilters && totalCount !== undefined && filteredCount !== undefined ? (
+              <>Showing {filteredCount} of {totalCount} patients</>
+            ) : (
+              <>A list of all patients currently undergoing therapy.</>
+            )}
+          </CardDescription>
         </div>
         <AddPatientForm />
       </CardHeader>
@@ -71,7 +78,7 @@ export function PatientList({ patients }: PatientListProps) {
                 </TableCell>
                 <TableCell className="hidden md:table-cell">{patient.condition}</TableCell>
                 <TableCell className="hidden sm:table-cell">
-                   {patient.lastSession ? formatDistanceToNow(new Date(patient.lastSession.seconds * 1000), { addSuffix: true }) : 'Never'}
+                  {patient.lastSession ? formatDistanceToNow(new Date(patient.lastSession.seconds * 1000), { addSuffix: true }) : 'Never'}
                 </TableCell>
                 <TableCell className="text-right">
                   <Button asChild variant="ghost" size="icon">
@@ -84,7 +91,19 @@ export function PatientList({ patients }: PatientListProps) {
               </TableRow>
             )) : (
               <TableRow>
-                <TableCell colSpan={4} className="text-center">No patients found.</TableCell>
+                <TableCell colSpan={4} className="text-center py-12">
+                  <div className="flex flex-col items-center gap-2">
+                    <Users className="h-12 w-12 text-muted-foreground/50" />
+                    <p className="text-muted-foreground">
+                      {hasActiveFilters ? 'No patients match your filters.' : 'No patients found.'}
+                    </p>
+                    {hasActiveFilters && (
+                      <p className="text-sm text-muted-foreground">
+                        Try adjusting your search or filters.
+                      </p>
+                    )}
+                  </div>
+                </TableCell>
               </TableRow>
             )}
           </TableBody>

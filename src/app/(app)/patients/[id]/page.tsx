@@ -1,39 +1,31 @@
 'use client';
 
 import { PatientDetails } from '@/components/patients/patient-details';
+import { ExerciseRecommendations } from '@/components/patients/exercise-recommendations';
+import { ProgressTimeline } from '@/components/patients/progress-timeline';
 import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { doc } from '@/lib/db';
 import { notFound, useRouter } from 'next/navigation';
 import { Loader2, User } from 'lucide-react';
 import type { Patient } from '@/lib/types';
-import { useEffect } from 'react';
+import { useEffect, use } from 'react';
 
-<<<<<<< HEAD
-export async function generateStaticParams() {
-  return patients.map((patient) => ({
-    id: patient.id,
-  }));
-}
+function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+  console.log('PatientDetailPage mounted with ID:', id);
 
-export default async function PatientDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-  const patient = patients.find((p) => p.id === id);
-=======
-function PatientDetailPage({ params }: { params: { id: string } }) {
   const firestore = useFirestore();
   const { user } = useUser();
   const router = useRouter();
 
   const patientDocRef = useMemoFirebase(() => {
-    if (!firestore || !params.id) return null;
-    return doc(firestore, 'patients', params.id);
-  }, [firestore, params.id]);
+    if (!firestore || !id) return null;
+    console.log('Creating doc ref for:', id);
+    return doc(firestore, 'patients', id);
+  }, [firestore, id]);
 
   const { data: patient, isLoading } = useDoc<Patient>(patientDocRef);
+  console.log('useDoc result:', { isLoading, patient, error: null });
 
   useEffect(() => {
     if (!isLoading && patient && user && patient.therapistId !== user.uid) {
@@ -48,7 +40,6 @@ function PatientDetailPage({ params }: { params: { id: string } }) {
   if (isLoading) {
     return <div className="flex justify-center items-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>;
   }
->>>>>>> 4cbf0a3 (I see this error with the app, reported by NextJS, please fix it. The er)
 
   if (!patient) {
     return notFound();
@@ -60,7 +51,16 @@ function PatientDetailPage({ params }: { params: { id: string } }) {
         <User className="h-8 w-8 text-primary" />
         <h1 className="text-3xl font-bold tracking-tight">Patient Profile</h1>
       </div>
-      <PatientDetails patient={patient} />
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="space-y-6">
+          <PatientDetails patient={patient} />
+        </div>
+        <div className="space-y-6">
+          <ExerciseRecommendations patient={patient} />
+          <ProgressTimeline patient={patient} />
+        </div>
+      </div>
     </div>
   );
 }

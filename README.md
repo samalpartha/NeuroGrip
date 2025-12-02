@@ -1,49 +1,261 @@
-# NeuroGrip
+# 🧠 NeuroGrip
 
-**NeuroGrip** is a full-stack web application for physical therapists and patients undergoing hand rehabilitation. It combines progress tracking, customized therapy plans, AI-assisted robotic glove control, and gamified exercises to increase patient engagement.
+**NeuroGrip** is a modern, full-stack web application designed for physical therapists and patients undergoing hand rehabilitation. It combines progress tracking, customized therapy plans, data visualization, and comprehensive patient management to enhance recovery outcomes.
 
-## Who it’s for
-- **Patients** recovering from stroke, injury, or neurological conditions who need structured, engaging hand therapy.
-- **Therapists** who want data-driven insights into patient progress and a simple way to manage therapy plans.
-- **Clinics / Rehab centers** looking to modernize their rehabilitation workflows and connect to robotic glove devices.
+![NeuroGrip Dashboard](/Users/psama0214/.gemini/antigravity/brain/abfec9a0-cd2c-49fb-9f4d-b203364d1c10/neurogrip_landing_page_1764641244685.png)
 
-## Key Features
-- **Personalized Dashboards**: Summary cards for therapy time, average grip strength, adherence, and goal completion, plus charts over time.
-- **Gamified Therapy Sessions**: Interactive "Grip Challenge" and other mini-games using target grip ranges, repetitions, and timing.
-- **Adaptive AI Assistance**: Genkit-backed recommendations for robotic glove assistance based on session history and therapist constraints, with explainable overrides.
-- **Therapist Patient Management**: Patient onboarding, therapy program assignment and adjustments, session history, and clinical notes.
-- **Program Builder**: Reusable therapy templates (e.g., 4-week post-stroke) that can be customized per patient.
-- **Progress & Compliance Analytics**: Trends for grip strength, adherence, missed sessions, and exportable summaries for clinic notes.
-- **Settings & Accessibility**: Profile management, notification preferences, and accessibility-friendly UI options.
+## ✨ Key Features
 
-## Tech Stack
-- **Framework:** Next.js (App Router)
-- **UI:** React, ShadCN UI, Tailwind CSS, Lucide Icons
-- **Backend:** Next.js API routes with a relational DB (e.g., PostgreSQL via Prisma) or Firebase as an alternative
-- **AI:** Genkit for AI recommendations and future integration with LLM-based coaching
-- **Testing (optional):** Playwright for E2E, Jest/Testing Library for components
+### For Therapists
+- **📊 Enhanced Dashboard** - Real-time statistics showing total patients, active cases, average progress, and therapy hours
+- **👥 Patient Management** - Complete patient records with demographics, conditions, and therapy history
+- **📈 Progress Tracking** - Interactive charts visualizing grip strength improvements and therapy hours
+- **📝 Clinical Notes** - Document observations and adjust treatment plans per patient
+- **🎯 Goal Setting** - Set target strength goals and track completion milestones
 
-## Getting Started
-Install dependencies:
+### For Patients
+- **📉 Visual Progress** - See your recovery journey with easy-to-understand charts
+- **🏆 Goal Tracking** - Monitor your achievements and stay motivated
+- **📅 Session History** - Review past therapy sessions and hours completed
 
-```bash
-npm install
+### Technical Features
+- **💾 Local Database** - All data stored in browser localStorage (no external server required)
+- **🔄 Real-time Updates** - Event-driven architecture for instant data synchronization
+- **🎨 Modern UI** - Built with ShadCN UI components and Tailwind CSS
+- **📱 Responsive Design** - Works seamlessly on desktop, tablet, and mobile devices
+- **🌓 Dark Mode Ready** - Comfortable viewing in any lighting condition
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18.x or higher
+- npm or yarn package manager
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/NeuroGrip.git
+   cd NeuroGrip
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+
+4. **Open your browser**
+   Navigate to [http://localhost:9002](http://localhost:9002)
+
+### Demo Account
+
+The application automatically logs you in as a test therapist:
+- **User ID**: `test-user-id`
+- **Display Name**: `Test User`
+- **Email**: `test@example.com`
+
+### Sample Data
+
+On first launch, NeuroGrip automatically creates 5 sample patients with realistic therapy data:
+
+1. **Emma Thompson** (68) - Post-stroke recovery
+2. **James Chen** (45) - Carpal tunnel syndrome recovery
+3. **Maria Rodriguez** (52) - Rheumatoid arthritis management
+4. **Robert Kim** (71) - Parkinson's disease hand tremor therapy
+5. **Sarah Johnson** (34) - Sports injury wrist fracture recovery
+
+## 🏗️ Tech Stack
+
+### Frontend
+- **Framework**: Next.js 15.3+ (App Router)
+- **Language**: TypeScript
+- **UI Library**: React 18
+- **Styling**: Tailwind CSS
+- **Components**: ShadCN UI
+- **Icons**: Lucide React
+- **Charts**: Recharts
+- **Forms**: React Hook Form + Zod validation
+
+### Backend
+- **Database**: Browser localStorage (local implementation)
+- **Authentication**: Mock authentication (for demo)
+- **Real-time Updates**: Custom event emitter system
+
+### Development
+- **Build Tool**: Next.js with Turbopack
+- **Package Manager**: npm
+- **TypeScript**: Strict mode enabled
+
+## 📁 Project Structure
+
+```
+NeuroGrip/
+├── src/
+│   ├── app/                    # Next.js app router pages
+│   │   ├── (app)/             # Authenticated app pages
+│   │   │   ├── page.tsx       # Enhanced dashboard
+│   │   │   ├── patients/      # Patient management
+│   │   │   └── settings/      # Settings page
+│   │   └── (auth)/            # Authentication pages
+│   ├── components/
+│   │   ├── dashboard/         # Dashboard components
+│   │   │   ├── stats-cards.tsx
+│   │   │   ├── recent-activity.tsx
+│   │   │   └── therapy-progress.tsx
+│   │   ├── charts/            # Chart components
+│   │   │   ├── grip-strength-chart.tsx
+│   │   │   └── therapy-hours-chart.tsx
+│   │   ├── patients/          # Patient components
+│   │   └── ui/                # Reusable UI components
+│   ├── lib/
+│   │   ├── local-db.ts        # Local database implementation
+│   │   ├── db.ts              # Firestore-compatible adapter
+│   │   ├── mock-auth.ts       # Mock authentication
+│   │   ├── seed-data.ts       # Sample data generator
+│   │   └── types.ts           # TypeScript type definitions
+│   └── firebase/              # Firebase hooks (using local mocks)
+├── public/                    # Static assets
+└── README.md
 ```
 
-Run the development server:
+## 💡 Usage
+
+### Managing Patients
+
+1. **View All Patients**: Click "Patients" in the sidebar
+2. **Add New Patient**: Click "Add New Patient" button
+3. **View Patient Details**: Click on any patient card
+4. **Update Patient Info**: Use the "Customize Program" form on patient detail page
+
+### Viewing Progress
+
+- **Dashboard**: Shows aggregate statistics for all patients
+- **Patient Detail**: Individual charts showing grip strength and therapy hours over time
+- **Stats Cards**: Real-time metrics with trend indicators
+
+### Data Management
+
+All data is stored in your browser's localStorage under the key `neurogrip_db`.
+
+**To reset the database:**
+1. Open Developer Tools (F12)
+2. Go to Application → Local Storage
+3. Find `neurogrip_db` and delete it
+4. Refresh the page - sample data will be re-seeded automatically
+
+## 🎨 Customization
+
+### Adding Custom Patients
+
+Edit `src/lib/seed-data.ts` to modify or add sample patients.
+
+### Changing Color Scheme
+
+Modify `tailwind.config.ts` to customize the theme colors.
+
+### Adjusting Charts
+
+Chart configurations are in:
+- `src/components/charts/grip-strength-chart.tsx`
+- `src/components/charts/therapy-hours-chart.tsx`
+- `src/components/dashboard/therapy-progress.tsx`
+
+## 🔧 Development
+
+### Build Commands
 
 ```bash
+# Development server
 npm run dev
+
+# Production build
+npm run build
+
+# Start production server
+npm start
+
+# Type checking
+npm run typecheck
+
+# Linting
+npm run lint
 ```
 
-Open [http://localhost:9002](http://localhost:9002) with your browser to see the result, then explore the sections from the sidebar navigation.
+### Environment Variables
 
-## Firebase setup
-If you connect the app to Firestore, apply the bundled security rules to avoid permission errors when listing the `patients` collection:
+No environment variables needed for local development. The app runs entirely in the browser.
 
-```bash
-firebase deploy --only firestore:rules
+## 📊 Data Storage
+
+### LocalStorage Structure
+
+```json
+{
+  "patients": {
+    "patient-id-1": {
+      "name": "Patient Name",
+      "age": 68,
+      "condition": "Condition description",
+      "therapistId": "test-user-id",
+      "avgGripStrength": 18,
+      "targetStrength": 25,
+      "gripStrengthHistory": [...],
+      "therapyHoursHistory": [...]
+    }
+  },
+  "users": {
+    "user-id-1": {...}
+  }
+}
 ```
 
-The provided `firestore.rules` file allows authenticated users to read patient documents and create or update them when the payload matches the expected shape. Deletions are blocked by default to protect patient records.
+## 🚨 Troubleshooting
 
+### Data Not Loading
+- Clear localStorage and refresh the page
+- Check browser console for errors
+- Ensure JavaScript is enabled
+
+### Charts Not Displaying
+- Verify patient has `gripStrengthHistory` and `therapyHoursHistory` data
+- Check browser console for errors
+- Try refreshing the page
+
+### Build Errors
+- Delete `node_modules` and `.next` directories
+- Run `npm install` again
+- Ensure Node.js version is 18.x or higher
+
+## 🌟 Future Enhancements
+
+- [ ] Export data to CSV/JSON
+- [ ] Import data from file
+- [ ] Patient search and filtering
+- [ ] Therapy session calendar
+- [ ] Email notifications/reminders
+- [ ] Printable progress reports
+- [ ] Multi-therapist support with real authentication
+- [ ] Cloud sync with backend API
+- [ ] Mobile app version
+- [ ] Integration with physical therapy devices
+
+## 📝 License
+
+This project is for educational and demonstration purposes.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests.
+
+## 📧 Support
+
+For questions or support, please open an issue in the GitHub repository.
+
+---
+
+Built with ❤️ using Next.js, React, and modern web technologies.

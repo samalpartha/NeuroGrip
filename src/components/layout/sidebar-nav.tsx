@@ -22,8 +22,7 @@ import {
   Settings,
   LogOut,
 } from "lucide-react"
-import { useAuth, useUser } from "@/firebase"
-import { signOut } from "firebase/auth"
+import { useUser } from "@/firebase"
 import { useToast } from "@/hooks/use-toast"
 
 const menuItems = [
@@ -43,18 +42,21 @@ export function SidebarNav() {
   const pathname = usePathname()
   const router = useRouter();
   const { toast } = useToast();
-  const auth = useAuth();
   const { user } = useUser();
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     try {
-      await signOut(auth);
+      // Clear session from localStorage
+      localStorage.removeItem('neurogrip_session');
+      localStorage.removeItem('neurogrip_user');
+
       toast({
         title: "Logged Out",
         description: "You have been successfully logged out.",
       });
       router.push("/login");
     } catch (error) {
+      // This catch block is mostly for consistency, as localStorage.removeItem rarely fails
       console.error("Logout failed:", error);
       toast({
         variant: "destructive",
@@ -100,8 +102,8 @@ export function SidebarNav() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton onClick={handleLogout} tooltip={{ children: "Logout" }}>
-                <LogOut />
-                <span>Logout</span>
+              <LogOut />
+              <span>Logout</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
