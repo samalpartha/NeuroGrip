@@ -3,38 +3,55 @@
 import { PatientDetails } from '@/components/patients/patient-details';
 import { ExerciseRecommendations } from '@/components/patients/exercise-recommendations';
 import { ProgressTimeline } from '@/components/patients/progress-timeline';
-import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { useFirestore, useUser } from '@/firebase';
 import { doc } from '@/lib/db';
 import { notFound, useRouter } from 'next/navigation';
 import { Loader2, User } from 'lucide-react';
 import type { Patient } from '@/lib/types';
-import { useEffect, use } from 'react';
+import { useEffect, use, useState } from 'react';
+import { onSnapshot } from '@/lib/db';
 
 function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  console.log('PatientDetailPage mounted with ID:', id);
 
   const firestore = useFirestore();
   const { user } = useUser();
   const router = useRouter();
 
-  const patientDocRef = useMemoFirebase(() => {
-    if (!firestore || !id) return null;
-    console.log('Creating doc ref for:', id);
-    return doc(firestore, 'patients', id);
-  }, [firestore, id]);
-
-  const { data: patient, isLoading } = useDoc<Patient>(patientDocRef);
-  console.log('useDoc result:', { isLoading, patient, error: null });
+  const [patient, setPatient] = useState<Patient | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!isLoading && patient && user && patient.therapistId !== user.uid) {
-      // This patient does not belong to the logged-in therapist.
-      // This check is important because the security rules for 'get'
-      // will block this on the server, but this provides a cleaner user experience.
-      router.replace('/patients');
+    if (!firestore || !id) {
+      setPatient(null);
+      setIsLoading(false);
+      return;
     }
-  }, [patient, isLoading, user, router]);
+
+    setIsLoading(true);
+    const patientDocRef = doc(firestore, 'patients', id);
+
+    const unsubscribe = onSnapshot(
+      patientDocRef,
+      (snapshot) => {
+        if (snapshot.exists()) {
+          setPatient({ ...(snapshot.data() as Patient), id: snapshot.id });
+        } else {
+          setPatient(null);
+        }
+        setIsLoading(false);
+      },
+      (error) => {
+        console.error('[PatientDetailPage] Error:', error);
+        setPatient(null);
+        setIsLoading(false);
+      }
+    );
+
+    return () => {
+      unsubscribe();
+    };
+  }, [firestore, id]);
 
 
   if (isLoading) {

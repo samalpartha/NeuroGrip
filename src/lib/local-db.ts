@@ -44,6 +44,12 @@ export class LocalDB {
                                 this.data = JSON.parse(stored);
                                 // Notify listeners that data has changed
                                 this.notify('patients');
+                                // Also notify individual document paths
+                                if (this.data.patients) {
+                                    Object.keys(this.data.patients).forEach(id => {
+                                        this.notify(`patients/${id}`);
+                                    });
+                                }
                             }
                         }
                     });

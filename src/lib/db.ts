@@ -160,16 +160,16 @@ export function onSnapshot(
     onNext: any,
     onError?: (error: any) => void
 ) {
-    let collectionPath = '';
+    let subscriptionPath = '';
     let isDoc = false;
 
     if (queryOrRef instanceof CollectionReference) {
-        collectionPath = queryOrRef.path;
+        subscriptionPath = queryOrRef.path;
     } else if (queryOrRef instanceof DocumentReference) {
-        collectionPath = queryOrRef.collectionPath;
+        subscriptionPath = queryOrRef.path; // Use full path (e.g., "patients/id")
         isDoc = true;
     } else {
-        collectionPath = queryOrRef.collectionPath;
+        subscriptionPath = queryOrRef.collectionPath;
     }
 
     const update = async () => {
@@ -191,7 +191,7 @@ export function onSnapshot(
     update();
 
     // Subscribe to changes
-    return (db as any).subscribe(collectionPath, update);
+    return (db as any).subscribe(subscriptionPath, update);
 };
 
 // Error types

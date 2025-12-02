@@ -86,8 +86,10 @@ export function useDoc<T = any>(
       }
     );
 
-    return () => unsubscribe();
-  }, [memoizedDocRef]); // Re-run if the memoizedDocRef changes.
+    return () => {
+      unsubscribe();
+    };
+  }, [memoizedDocRef, memoizedDocRef?.path]); // Re-run if the memoizedDocRef or its path changes.
 
   return { data, isLoading, error };
 }
