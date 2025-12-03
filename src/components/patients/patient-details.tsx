@@ -1,5 +1,8 @@
 import type { Patient } from "@/lib/types";
 import { TherapyProgress } from "@/components/dashboard/therapy-progress";
+import { Button } from "@/components/ui/button";
+import { Printer } from "lucide-react";
+import { VoiceNotes } from "./voice-notes";
 import { PatientExerciseForm } from "./patient-exercise-form";
 import {
   Card,
@@ -13,7 +16,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 interface PatientDetailsProps {
   patient: Patient;
 }
-
 export function PatientDetails({ patient }: PatientDetailsProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
@@ -29,8 +31,15 @@ export function PatientDetails({ patient }: PatientDetailsProps) {
             <CardTitle className="text-2xl">{patient.name}</CardTitle>
             <CardDescription>{patient.age} years old • {patient.condition}</CardDescription>
           </CardHeader>
+          <CardContent className="pb-6">
+            <Button variant="outline" className="w-full" onClick={() => window.print()}>
+              <Printer className="mr-2 h-4 w-4" />
+              Print Report
+            </Button>
+          </CardContent>
         </Card>
         <PatientExerciseForm patient={patient} />
+        <VoiceNotes />
       </div>
       <div className="lg:col-span-2">
         <TherapyProgress

@@ -24,6 +24,7 @@ import {
 } from "lucide-react"
 import { useUser } from "@/firebase"
 import { useToast } from "@/hooks/use-toast"
+import { ModeToggle } from "@/components/ui/mode-toggle"
 
 const menuItems = [
   {
@@ -100,6 +101,11 @@ export function SidebarNav() {
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
+          <SidebarMenuItem>
+            <div className="px-2 py-1.5">
+              <ModeToggle />
+            </div>
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton onClick={handleLogout} tooltip={{ children: "Logout" }}>
               <LogOut />
