@@ -69,14 +69,11 @@ function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
         <h1 className="text-3xl font-bold tracking-tight">Patient Profile</h1>
       </div>
 
+      <PatientDetails patient={patient} />
+
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="space-y-6">
-          <PatientDetails patient={patient} />
-        </div>
-        <div className="space-y-6">
-          <ExerciseRecommendations patient={patient} />
-          <ProgressTimeline patient={patient} />
-        </div>
+        <ExerciseRecommendations patient={patient} />
+        <ProgressTimeline patient={patient} />
       </div>
     </div>
   );
