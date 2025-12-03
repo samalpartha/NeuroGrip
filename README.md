@@ -2,6 +2,8 @@
 
 **NeuroGrip** is a modern, full-stack web application designed for physical therapists and patients undergoing hand rehabilitation. It combines progress tracking, customized therapy plans, data visualization, and comprehensive patient management to enhance recovery outcomes.
 
+🚀 **Live Demo:** [https://neuro-grip-eqycpcd2x-samalparthas-projects.vercel.app/](https://neuro-grip-eqycpcd2x-samalparthas-projects.vercel.app/)
+
 ![NeuroGrip Dashboard](/Users/psama0214/.gemini/antigravity/brain/abfec9a0-cd2c-49fb-9f4d-b203364d1c10/neurogrip_landing_page_1764641244685.png)
 
 ## ✨ Key Features
